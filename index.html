@@ -161,6 +161,30 @@
                 </div>
             </div>
 
+            <!-- LISTE DES CRÉNEAUX PIANO GROUPÉS PAR DATE -->
+            <div id="piano-slots-container" class="space-y-6">
+                <!-- Généré dynamiquement par JS -->
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- SECTION 3 : AUDITIONS & CONCERTS           -->
+        <!-- ========================================== -->
+        <section id="view-auditions" class="hidden space-y-6 animate-fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold tracking-tight">Auditions & Concerts de Classe</h2>
+                    <p class="text-xs text-neutral-500 mt-0.5">Dates importantes et inscriptions des élèves</p>
+                </div>
+
+                <!-- BOUTON AJOUT AUDITION (FÉLIX OU STÉPHANIE) -->
+                <div id="audition-controls" class="hidden">
+                    <button onclick="openModal('modal-audition')" class="bg-black text-white text-xs font-semibold px-4 py-2.5 rounded-xl hover:bg-neutral-800 transition flex items-center gap-2 shadow-sm">
+                        <span>+ Ajouter une audition</span>
+                    </button>
+                </div>
+            </div>
+
             <!-- LISTE DES AUDITIONS -->
             <div id="auditions-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Généré dynamiquement par JS -->
@@ -448,7 +472,7 @@
         const getCollectionRef = (colName) => collection(db, 'artifacts', appId, 'public', 'data', colName);
         const getDocRef = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data', colName, docId);
 
-        let currentUser = null;
+        let isDbReady = false;
         let currentRole = 'student'; // 'student' | 'felix' | 'stephanie'
         let currentStudentName = '';
         let activeTab = 'violin';
@@ -459,9 +483,10 @@
             auditions: []
         };
 
-        // --- AUTHENTIFICATION & SYNCHRONISATION TEMPS RÉEL ---
+        // --- CONNEXION FIRESTORE & SYNCHRONISATION TEMPS RÉEL ---
 
         async function initFirebase() {
+            // Tentative d'authentification silencieuse (si activée dans Firebase)
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
@@ -469,20 +494,16 @@
                     await signInAnonymously(auth);
                 }
             } catch (error) {
-                console.error("Erreur d'authentification:", error);
-                updateSyncStatus(false, "Erreur de connexion");
+                // Si Firebase Auth n'est pas encore activé (auth/configuration-not-found),
+                // on continue quand même vers Firestore sans bloquer l'application.
+                console.warn("Auth non activée, connexion directe à Firestore...", error.code);
             }
+            
+            subscribeToCollections();
         }
 
-        onAuthStateChanged(auth, (user) => {
-            currentUser = user;
-            if (user) {
-                updateSyncStatus(true, "Synchronisé en direct");
-                subscribeToCollections();
-            }
-        });
-
         function updateSyncStatus(connected, text) {
+            isDbReady = connected;
             const indicator = document.getElementById('sync-indicator');
             const statusText = document.getElementById('sync-status');
             if (indicator && statusText) {
@@ -492,25 +513,33 @@
         }
 
         function subscribeToCollections() {
-            if (!currentUser) return;
+            const handleSnapshotError = (err) => {
+                console.error("Erreur Firestore:", err);
+                if (err.code === 'permission-denied') {
+                    updateSyncStatus(false, "Accès refusé : ouvrez les règles Firestore dans votre console Firebase");
+                } else {
+                    updateSyncStatus(false, `Erreur Firestore (${err.code}) : vérifiez que la base Firestore est créée`);
+                }
+            };
 
             // Écoute des cours de violon
             onSnapshot(getCollectionRef('violinSlots'), (snapshot) => {
+                updateSyncStatus(true, "Synchronisé en direct");
                 appState.violinSlots = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderAll();
-            }, (err) => console.error("Erreur violinSlots:", err));
+            }, handleSnapshotError);
 
             // Écoute des répétitions piano
             onSnapshot(getCollectionRef('pianoSlots'), (snapshot) => {
                 appState.pianoSlots = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderAll();
-            }, (err) => console.error("Erreur pianoSlots:", err));
+            }, handleSnapshotError);
 
             // Écoute des auditions
             onSnapshot(getCollectionRef('auditions'), (snapshot) => {
                 appState.auditions = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderAll();
-            }, (err) => console.error("Erreur auditions:", err));
+            }, handleSnapshotError);
         }
 
         // Initialisation des dates par défaut dans les formulaires
@@ -824,7 +853,6 @@
 
         window.handleCreateBreak = async (e) => {
             e.preventDefault();
-            if (!currentUser) return;
 
             const targetType = document.getElementById('break-target-type').value;
             const date = document.getElementById('break-date').value;
@@ -855,7 +883,6 @@
 
         window.handleCreateBatchViolin = async (e) => {
             e.preventDefault();
-            if (!currentUser) return;
 
             const date = document.getElementById('batch-v-date').value;
             const startStr = document.getElementById('batch-v-start').value;
@@ -899,7 +926,6 @@
 
         window.handleCreateSingleViolin = async (e) => {
             e.preventDefault();
-            if (!currentUser) return;
 
             const date = document.getElementById('single-v-date').value;
             const startTime = document.getElementById('single-v-start').value;
@@ -928,7 +954,6 @@
 
         window.handleCreateBatchPiano = async (e) => {
             e.preventDefault();
-            if (!currentUser) return;
 
             const date = document.getElementById('batch-p-date').value;
             const startStr = document.getElementById('batch-p-start').value;
@@ -971,7 +996,6 @@
 
         window.handleCreateAudition = async (e) => {
             e.preventDefault();
-            if (!currentUser) return;
 
             const title = document.getElementById('aud-title').value.trim();
             const date = document.getElementById('aud-date').value;
@@ -1014,7 +1038,6 @@
 
         window.confirmBooking = async (e) => {
             e.preventDefault();
-            if (!currentUser) return;
 
             const slotId = document.getElementById('book-slot-id').value;
             const type = document.getElementById('book-slot-type').value;
@@ -1041,7 +1064,6 @@
         };
 
         window.cancelBooking = async (type, slotId) => {
-            if (!currentUser) return;
             const colName = type === 'violin' ? 'violinSlots' : 'pianoSlots';
 
             try {
@@ -1057,7 +1079,6 @@
         };
 
         window.deleteSlot = async (type, slotId) => {
-            if (!currentUser) return;
             const colName = type === 'violin' ? 'violinSlots' : 'pianoSlots';
 
             try {
@@ -1070,7 +1091,6 @@
         };
 
         window.deleteAudition = async (audId) => {
-            if (!currentUser) return;
             try {
                 await deleteDoc(getDocRef('auditions', audId));
                 showToast('Audition supprimée.');
@@ -1081,7 +1101,6 @@
         };
 
         window.toggleAuditionParticipation = async (audId) => {
-            if (!currentUser) return;
             if (!currentStudentName) {
                 showToast('Veuillez indiquer votre nom en haut de la page avant de vous inscrire.');
                 document.getElementById('student-name-input').focus();
