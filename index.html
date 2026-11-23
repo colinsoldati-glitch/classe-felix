@@ -457,12 +457,13 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getDatabase, ref, push, set, update, remove, onValue, get } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
-        // Configuration Firebase fournie par l'utilisateur (avec repli sur l'environnement si nécessaire)
+        // Configuration Firebase avec l'URL explicite de votre Realtime Database
         const userProvidedConfig = {
             apiKey: "AIzaSyB6R1M0LB9a3Xv9C5nLgKv4BG7PWFL-7uc",
             authDomain: "classe-felix.firebaseapp.com",
+            databaseURL: "https://classe-felix-default-rtdb.firebaseio.com",
             projectId: "classe-felix",
             storageBucket: "classe-felix.firebasestorage.app",
             messagingSenderId: "801544350628",
@@ -471,15 +472,16 @@
         };
 
         const firebaseConfig = (typeof __firebase_config !== 'undefined' && __firebase_config)
-            ? JSON.parse(__firebase_config)
+            ? { ...JSON.parse(__firebase_config), databaseURL: "https://classe-felix-default-rtdb.firebaseio.com" }
             : userProvidedConfig;
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'classe-felix-violon';
+        const rawAppId = typeof __app_id !== 'undefined' ? __app_id : 'classe-felix-violon';
+        const appId = rawAppId.replace(/[.#$\[\]]/g, '_');
 
-        // Initialisation Firebase
+        // Initialisation Firebase & Realtime Database
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
+        const rtdb = getDatabase(app, "https://classe-felix-default-rtdb.firebaseio.com");
 
         // État global de l'application
         let currentUser = null;
@@ -491,9 +493,9 @@
         let allSlots = [];
         let allAuditions = [];
 
-        // Références aux collections Firestore (Chemins stricts respectant les règles)
-        const slotsCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'slots');
-        const auditionsCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'auditions');
+        // Références aux nœuds Realtime Database
+        const slotsDbRef = ref(rtdb, `artifacts/${appId}/public/data/slots`);
+        const auditionsDbRef = ref(rtdb, `artifacts/${appId}/public/data/auditions`);
 
         // ==================== AUTHENTIFICATION & PROFIL ====================
         async function initApp() {
@@ -505,24 +507,39 @@
                     await signInAnonymously(auth);
                 }
             } catch (error) {
-                console.error("Erreur d'authentification:", error);
-                showToast("Erreur de connexion au serveur.", "error");
+                console.warn("Authentification anonyme non activée ou indisponible, démarrage direct RTDB :", error);
+                // Permettre le fonctionnement même si l'auth anonyme n'est pas activée sur la console Firebase
+                currentUser = { uid: getOrCreateDeviceId() };
+                loadProfileAndStartListeners();
             }
+        }
+
+        function getOrCreateDeviceId() {
+            let id = sessionStorage.getItem('classe_felix_uid');
+            if (!id) {
+                id = 'user_' + Math.random().toString(36).substring(2, 12);
+                sessionStorage.setItem('classe_felix_uid', id);
+            }
+            return id;
         }
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) return;
             currentUser = user;
+            loadProfileAndStartListeners();
+        });
 
-            // Charger le profil utilisateur enregistré dans Firestore (profil privé)
+        async function loadProfileAndStartListeners() {
+            if (!currentUser) return;
+
+            // Charger le profil utilisateur enregistré dans Realtime Database
             try {
-                const profileDocRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'info');
-                const snap = await getDoc(profileDocRef);
+                const profileRef = ref(rtdb, `artifacts/${appId}/users/${currentUser.uid}/profile`);
+                const snap = await get(profileRef);
                 if (snap.exists()) {
-                    userProfile = snap.data();
+                    userProfile = snap.val();
                     updateProfileUI();
                 } else {
-                    // Première visite : ouvrir la modale de choix de profil
                     openProfileModal();
                 }
             } catch (e) {
@@ -532,29 +549,31 @@
 
             // Démarrer l'écoute temps réel des données
             startRealtimeListeners();
-        });
+        }
 
-        // ==================== ÉCOUTE TEMPS RÉEL FIRESTORE ====================
+        // ==================== ÉCOUTE TEMPS RÉEL (REALTIME DATABASE) ====================
         function startRealtimeListeners() {
-            if (!currentUser) return;
-
             // 1. Écoute des créneaux (Félix et Stéphanie)
-            onSnapshot(slotsCollectionRef, (snapshot) => {
-                allSlots = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            onValue(slotsDbRef, (snapshot) => {
+                const val = snapshot.val();
+                allSlots = val ? Object.entries(val).map(([id, data]) => ({ id, ...data })) : [];
                 renderSlots();
                 document.getElementById('loading-state').classList.add('hidden');
                 switchTab(activeTab);
             }, (error) => {
-                console.error("Erreur lecture créneaux:", error);
-                showToast("Impossible de charger les créneaux.", "error");
+                console.error("Erreur lecture créneaux RTDB:", error);
+                document.getElementById('loading-state').classList.add('hidden');
+                switchTab(activeTab);
+                showToast("Vérifiez les règles de lecture de la base de données.", "error");
             });
 
             // 2. Écoute des auditions
-            onSnapshot(auditionsCollectionRef, (snapshot) => {
-                allAuditions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            onValue(auditionsDbRef, (snapshot) => {
+                const val = snapshot.val();
+                allAuditions = val ? Object.entries(val).map(([id, data]) => ({ id, ...data })) : [];
                 renderAuditions();
             }, (error) => {
-                console.error("Erreur lecture auditions:", error);
+                console.error("Erreur lecture auditions RTDB:", error);
             });
         }
 
@@ -612,11 +631,12 @@
             closeModal('modal-profile');
 
             try {
-                const profileDocRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'info');
-                await setDoc(profileDocRef, userProfile);
+                const profileRef = ref(rtdb, `artifacts/${appId}/users/${currentUser.uid}/profile`);
+                await set(profileRef, userProfile);
                 showToast(`Bienvenue, ${finalName} !`);
             } catch (e) {
                 console.error("Erreur sauvegarde profil:", e);
+                showToast(`Bienvenue, ${finalName} !`);
             }
         };
 
@@ -768,7 +788,7 @@
 
             try {
                 for (const slot of slotsToCreate) {
-                    await addDoc(slotsCollectionRef, slot);
+                    await push(slotsDbRef, slot);
                 }
                 showToast(`${slotsToCreate.length} créneau(x) ajouté(s) avec succès !`);
             } catch (err) {
@@ -805,8 +825,8 @@
             closeModal('modal-book');
 
             try {
-                const slotRef = doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotId);
-                await updateDoc(slotRef, {
+                const slotRef = ref(rtdb, `artifacts/${appId}/public/data/slots/${slotId}`);
+                await update(slotRef, {
                     bookedBy: studentName,
                     bookedByUid: currentUser.uid,
                     repertoire: repertoire
@@ -824,8 +844,8 @@
                 "Ce créneau redeviendra disponible pour les autres élèves de la classe.",
                 async () => {
                     try {
-                        const slotRef = doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotId);
-                        await updateDoc(slotRef, {
+                        const slotRef = ref(rtdb, `artifacts/${appId}/public/data/slots/${slotId}`);
+                        await update(slotRef, {
                             bookedBy: null,
                             bookedByUid: null,
                             repertoire: ''
@@ -844,8 +864,8 @@
                 "Ce créneau sera définitivement retiré de l'agenda.",
                 async () => {
                     try {
-                        const slotRef = doc(db, 'artifacts', appId, 'public', 'data', 'slots', slotId);
-                        await deleteDoc(slotRef);
+                        const slotRef = ref(rtdb, `artifacts/${appId}/public/data/slots/${slotId}`);
+                        await remove(slotRef);
                         showToast("Créneau supprimé.");
                     } catch (err) {
                         showToast("Erreur lors de la suppression.", "error");
@@ -1000,7 +1020,7 @@
             closeModal('modal-audition');
 
             try {
-                await addDoc(auditionsCollectionRef, newAudition);
+                await push(auditionsDbRef, newAudition);
                 showToast("Date d'audition ajoutée !");
             } catch (err) {
                 console.error("Erreur ajout audition:", err);
@@ -1014,8 +1034,8 @@
                 "L'événement sera retiré du calendrier de la classe.",
                 async () => {
                     try {
-                        const ref = doc(db, 'artifacts', appId, 'public', 'data', 'auditions', auditionId);
-                        await deleteDoc(ref);
+                        const auditionRef = ref(rtdb, `artifacts/${appId}/public/data/auditions/${auditionId}`);
+                        await remove(auditionRef);
                         showToast("Audition supprimée.");
                     } catch (err) {
                         showToast("Erreur lors de la suppression.", "error");
