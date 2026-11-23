@@ -3,46 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Classe de Violon • Félix Froschhammer</title>
+    <title>Classe de Violon — Félix Froschhammer</title>
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Classe Félix">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Classe Froschhammer">
     
+    <!-- Manifest PWA intégré dynamiquement via Data URI pour fonctionnement immédiat -->
+    <link rel="manifest" href='data:application/manifest+json,{"name":"Classe de Violon — Félix Froschhammer","short_name":"Classe Violon","start_url":".","display":"standalone","background_color":"#ffffff","theme_color":"#000000","icons":[{"src":"data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><rect width=%27100%27 height=%27100%27 fill=%27black%27/><text x=%2750%27 y=%2765%27 font-size=%2750%27 fill=%27white%27 text-anchor=%27middle%27 font-family=%27serif%27>🎻</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}'>
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts: Inter (Minimalisme suisse) -->
+    <!-- Google Fonts: Inter & Cormorant Garamond pour une touche classique/musicale raffinée -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Phosphor Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
-    <!-- Manifeste PWA -->
-    <link rel="manifest" id="pwa-manifest">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Inter"', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: #ffffff;
-            color: #0a0a0a;
+            color: #000000;
             -webkit-tap-highlight-color: transparent;
         }
+        .font-serif-title {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+        }
+        /* Scrollbar minimaliste */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f5f5f5;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #000000;
+        }
+        /* Animation douce des modales */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in {
@@ -50,347 +51,383 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col pb-24 md:pb-12 bg-white text-black antialiased">
+<body class="min-h-screen flex flex-col justify-between selection:bg-black selection:text-white">
 
-    <!-- EN-TÊTE MINIMALISTE NOIR & BLANC -->
-    <header class="bg-black text-white sticky top-0 z-40 border-b border-neutral-800">
-        <div class="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+    <!-- NOTIFICATION TOAST (Remplace alert()) -->
+    <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex flex-col items-center gap-2 w-11/12 max-w-md"></div>
+
+    <!-- HEADER ÉPURÉ -->
+    <header class="border-b border-neutral-200 sticky top-0 bg-white/95 backdrop-blur-sm z-30">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
-                <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white">
-                    Classe de Violon
+                <p class="text-[10px] uppercase tracking-[0.25em] text-neutral-500 font-semibold">HEMU Sion</p>
+                <h1 class="font-serif-title text-2xl sm:text-3xl font-semibold tracking-tight leading-none mt-0.5">
+                    Classe de Félix Froschhammer
                 </h1>
-                <p class="text-xs text-neutral-400 font-medium tracking-wide">
-                    Félix Froschhammer
-                </p>
             </div>
 
-            <div class="flex items-center gap-2">
-                <!-- Indicateur statut serveur -->
-                <span id="db-status-dot" title="Statut de synchronisation" class="w-2 h-2 rounded-full bg-neutral-500"></span>
-
-                <!-- Bouton Profil Actif -->
-                <button onclick="openProfileModal()" id="profile-btn" class="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition">
-                    <span id="profile-name-display" class="truncate max-w-[120px] sm:max-w-[180px]">Choisir profil</span>
-                    <i class="ph ph-caret-down text-neutral-400"></i>
-                </button>
+            <!-- SÉLECTEUR DE PROFIL / RÔLE -->
+            <div class="flex items-center gap-2 bg-neutral-100 p-1 rounded-xl border border-neutral-200 self-start sm:self-auto">
+                <span class="text-[11px] font-medium text-neutral-500 pl-2 hidden md:inline">Vue :</span>
+                <select id="role-selector" onchange="handleRoleChange()" class="bg-white text-black text-xs font-semibold py-1.5 px-3 rounded-lg border border-neutral-300 focus:outline-none focus:border-black cursor-pointer">
+                    <option value="student">Élève</option>
+                    <option value="felix">Professeur — Félix Froschhammer</option>
+                    <option value="stephanie">Piano — Stéphanie Gurga</option>
+                </select>
             </div>
         </div>
 
-        <!-- NAVIGATION DESKTOP -->
-        <nav class="hidden md:flex max-w-3xl mx-auto px-4 gap-6 border-t border-neutral-900">
-            <button onclick="switchTab('felix')" data-tab="felix" class="tab-btn py-3 text-xs uppercase tracking-wider font-semibold border-b-2 border-white text-white transition">
-                Cours Félix
+        <!-- BARRE DE NAVIGATION PAR ONGLETS -->
+        <nav class="max-w-4xl mx-auto px-4 flex gap-6 overflow-x-auto no-scrollbar border-t border-neutral-100">
+            <button onclick="switchTab('violin')" id="tab-violin" class="tab-btn py-3 text-xs sm:text-sm font-semibold border-b-2 border-black text-black whitespace-nowrap transition-colors">
+                Cours de Violon
             </button>
-            <button onclick="switchTab('stephanie')" data-tab="stephanie" class="tab-btn py-3 text-xs uppercase tracking-wider font-semibold border-b-2 border-transparent text-neutral-400 hover:text-white transition">
-                Piano • Stéphanie Gurga
+            <button onclick="switchTab('piano')" id="tab-piano" class="tab-btn py-3 text-xs sm:text-sm font-medium border-b-2 border-transparent text-neutral-500 hover:text-black whitespace-nowrap transition-colors">
+                Piano (Stéphanie Gurga)
             </button>
-            <button onclick="switchTab('auditions')" data-tab="auditions" class="tab-btn py-3 text-xs uppercase tracking-wider font-semibold border-b-2 border-transparent text-neutral-400 hover:text-white transition">
-                Auditions
+            <button onclick="switchTab('auditions')" id="tab-auditions" class="tab-btn py-3 text-xs sm:text-sm font-medium border-b-2 border-transparent text-neutral-500 hover:text-black whitespace-nowrap transition-colors">
+                Auditions & Concerts
             </button>
         </nav>
     </header>
 
-    <!-- ALERTE ERREUR CONNEXION FIREBASE (Visible uniquement si blocage règles RTDB) -->
-    <div id="firebase-error-banner" class="hidden bg-neutral-950 text-white border-b border-neutral-800 px-4 py-3 text-xs">
-        <div class="max-w-3xl mx-auto flex items-start justify-between gap-3">
-            <div>
-                <p class="font-bold">Connexion à la base de données bloquée</p>
-                <p id="firebase-error-detail" class="text-neutral-300 mt-0.5">Vérifiez dans votre console Firebase &gt; Realtime Database &gt; Règles que <code>".read": true</code> et <code>".write": true</code> sont activés.</p>
-            </div>
-            <button onclick="location.reload()" class="shrink-0 bg-white text-black px-3 py-1.5 rounded font-semibold">Réessayer</button>
-        </div>
-    </div>
-
     <!-- CONTENU PRINCIPAL -->
-    <main class="flex-1 max-w-3xl w-full mx-auto px-4 pt-6 pb-8">
+    <main class="flex-grow max-w-4xl w-full mx-auto px-4 py-6 sm:py-8">
 
-        <!-- ÉTAT DE CHARGEMENT -->
-        <div id="loading-state" class="flex flex-col items-center justify-center py-20 text-neutral-600">
-            <div class="w-6 h-6 border-2 border-neutral-300 border-t-black rounded-full animate-spin mb-3"></div>
-            <p class="text-xs uppercase tracking-widest font-medium">Chargement de l'agenda...</p>
+        <!-- BANDEAU D'IDENTIFICATION ÉLÈVE (Visible uniquement en mode Élève) -->
+        <div id="student-banner" class="mb-6 p-4 rounded-2xl border border-neutral-200 bg-neutral-50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center font-serif-title text-lg font-semibold shrink-0" id="student-avatar">
+                    ?
+                </div>
+                <div>
+                    <p class="text-xs text-neutral-500">Votre prénom & nom</p>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="student-name-input" value="" oninput="updateStudentName(this.value)" class="font-semibold text-sm bg-transparent border-b border-neutral-400 focus:border-black focus:outline-none w-44 py-0.5" placeholder="Entrez votre nom...">
+                    </div>
+                </div>
+            </div>
+            <p class="text-xs text-neutral-600">Cliquez sur un <span class="font-semibold underline">Créneau libre</span> pour réserver.</p>
         </div>
 
-        <!-- ==================== ONGLET 1 : COURS FÉLIX ==================== -->
-        <section id="view-felix" class="hidden space-y-6 animate-fade-in">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-200">
+        <!-- ========================================== -->
+        <!-- SECTION 1 : COURS DE VIOLON (FÉLIX)        -->
+        <!-- ========================================== -->
+        <section id="view-violin" class="space-y-6 animate-fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 class="text-xl font-bold tracking-tight text-black">Cours avec Félix Froschhammer</h2>
-                    <p class="text-xs text-neutral-500 mt-1">Sélectionnez un créneau libre pour réserver votre cours.</p>
+                    <h2 class="text-xl font-bold tracking-tight">Planning des Cours de Violon</h2>
+                    <p class="text-xs text-neutral-500 mt-0.5">Créneaux proposés par Félix Froschhammer</p>
                 </div>
-                
-                <button id="btn-add-felix" onclick="openSlotModal('felix')" class="hidden sm:inline-flex items-center justify-center gap-2 bg-black hover:bg-neutral-800 text-white px-4 py-2.5 rounded-lg text-xs font-semibold transition">
-                    <i class="ph-bold ph-plus"></i>
-                    Proposer un créneau
-                </button>
+
+                <!-- BOUTONS D'ACTION FÉLIX -->
+                <div id="felix-controls" class="hidden flex-wrap gap-2">
+                    <button onclick="openModal('modal-batch-violin')" class="bg-black text-white text-xs font-semibold px-4 py-2.5 rounded-xl hover:bg-neutral-800 transition flex items-center gap-2 shadow-sm">
+                        <span>+ Générer une série</span>
+                    </button>
+                    <button onclick="openModal('modal-single-violin')" class="bg-white text-black border border-black text-xs font-semibold px-4 py-2.5 rounded-xl hover:bg-neutral-100 transition flex items-center gap-2">
+                        <span>+ Créneau libre</span>
+                    </button>
+                    <button onclick="openBreakModal('violin')" class="bg-neutral-100 text-black border border-neutral-300 text-xs font-semibold px-4 py-2.5 rounded-xl hover:bg-neutral-200 transition flex items-center gap-2">
+                        <span>+ Pause</span>
+                    </button>
+                </div>
             </div>
 
-            <button id="btn-add-felix-mobile" onclick="openSlotModal('felix')" class="hidden w-full flex items-center justify-center gap-2 bg-black hover:bg-neutral-800 text-white px-4 py-3 rounded-lg text-xs font-semibold transition">
-                <i class="ph-bold ph-plus"></i>
-                Ajouter des créneaux de cours
-            </button>
-
-            <div id="felix-slots-container" class="space-y-6"></div>
+            <!-- LISTE DES CRÉNEAUX VIOLON GROUPÉS PAR DATE -->
+            <div id="violin-slots-container" class="space-y-6">
+                <!-- Généré dynamiquement par JS -->
+            </div>
         </section>
 
-        <!-- ==================== ONGLET 2 : PIANO STÉPHANIE ==================== -->
-        <section id="view-stephanie" class="hidden space-y-6 animate-fade-in">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-200">
+        <!-- ========================================== -->
+        <!-- SECTION 2 : ACCOMPAGNEMENT PIANO (STÉPHANIE) -->
+        <!-- ========================================== -->
+        <section id="view-piano" class="hidden space-y-6 animate-fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 class="text-xl font-bold tracking-tight text-black">Piano • Stéphanie Gurga</h2>
-                    <p class="text-xs text-neutral-500 mt-1">Inscrivez-vous sur les créneaux d'accompagnement.</p>
+                    <h2 class="text-xl font-bold tracking-tight">Répétitions Piano — Stéphanie Gurga</h2>
+                    <p class="text-xs text-neutral-500 mt-0.5">Disponibilités de l'accompagnatrice de la classe</p>
                 </div>
 
-                <button id="btn-add-stephanie" onclick="openSlotModal('stephanie')" class="hidden sm:inline-flex items-center justify-center gap-2 bg-black hover:bg-neutral-800 text-white px-4 py-2.5 rounded-lg text-xs font-semibold transition">
-                    <i class="ph-bold ph-plus"></i>
-                    Ajouter disponibilité
-                </button>
-            </div>
-
-            <button id="btn-add-stephanie-mobile" onclick="openSlotModal('stephanie')" class="hidden w-full flex items-center justify-center gap-2 bg-black hover:bg-neutral-800 text-white px-4 py-3 rounded-lg text-xs font-semibold transition">
-                <i class="ph-bold ph-plus"></i>
-                Proposer un créneau piano
-            </button>
-
-            <div id="stephanie-slots-container" class="space-y-6"></div>
-        </section>
-
-        <!-- ==================== ONGLET 3 : AUDITIONS ==================== -->
-        <section id="view-auditions" class="hidden space-y-6 animate-fade-in">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-200">
-                <div>
-                    <h2 class="text-xl font-bold tracking-tight text-black">Auditions & Concerts</h2>
-                    <p class="text-xs text-neutral-500 mt-1">Dates et lieux des auditions de la classe.</p>
+                <!-- BOUTON D'ACTION STÉPHANIE (ou Félix) -->
+                <div id="stephanie-controls" class="hidden flex-wrap gap-2">
+                    <button onclick="openModal('modal-batch-piano')" class="bg-black text-white text-xs font-semibold px-4 py-2.5 rounded-xl hover:bg-neutral-800 transition flex items-center gap-2 shadow-sm">
+                        <span>+ Ajouter des disponibilités</span>
+                    </button>
+                    <button onclick="openBreakModal('piano')" class="bg-neutral-100 text-black border border-neutral-300 text-xs font-semibold px-4 py-2.5 rounded-xl hover:bg-neutral-200 transition flex items-center gap-2">
+                        <span>+ Pause</span>
+                    </button>
                 </div>
-
-                <button id="btn-add-audition" onclick="openAuditionModal()" class="hidden sm:inline-flex items-center justify-center gap-2 bg-black hover:bg-neutral-800 text-white px-4 py-2.5 rounded-lg text-xs font-semibold transition">
-                    <i class="ph-bold ph-plus"></i>
-                    Nouvelle audition
-                </button>
             </div>
 
-            <button id="btn-add-audition-mobile" onclick="openAuditionModal()" class="hidden w-full flex items-center justify-center gap-2 bg-black hover:bg-neutral-800 text-white px-4 py-3 rounded-lg text-xs font-semibold transition">
-                <i class="ph-bold ph-plus"></i>
-                Ajouter une date d'audition
-            </button>
-
-            <div id="auditions-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            <!-- LISTE DES AUDITIONS -->
+            <div id="auditions-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Généré dynamiquement par JS -->
+            </div>
         </section>
 
     </main>
 
-    <!-- BARRE DE NAVIGATION MOBILE -->
-    <nav class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-neutral-200 z-40 px-2 py-1.5">
-        <div class="grid grid-cols-3 gap-1">
-            <button onclick="switchTab('felix')" data-tab="felix" class="mobile-tab-btn flex flex-col items-center justify-center py-2 rounded-lg text-white bg-black font-semibold transition">
-                <i class="ph ph-music-note text-lg mb-0.5"></i>
-                <span class="text-[11px]">Cours Félix</span>
-            </button>
-            <button onclick="switchTab('stephanie')" data-tab="stephanie" class="mobile-tab-btn flex flex-col items-center justify-center py-2 rounded-lg text-neutral-500 font-medium transition">
-                <i class="ph ph-piano-keys text-lg mb-0.5"></i>
-                <span class="text-[11px]">Piano</span>
-            </button>
-            <button onclick="switchTab('auditions')" data-tab="auditions" class="mobile-tab-btn flex flex-col items-center justify-center py-2 rounded-lg text-neutral-500 font-medium transition">
-                <i class="ph ph-calendar text-lg mb-0.5"></i>
-                <span class="text-[11px]">Auditions</span>
-            </button>
+    <!-- FOOTER DISCRET -->
+    <footer class="border-t border-neutral-200 py-6 mt-12">
+        <div class="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-400 gap-2">
+            <p>HEMU Sion — Classe de Félix Froschhammer & Stéphanie Gurga</p>
+            <p class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-neutral-400 inline-block" id="sync-indicator"></span>
+                <span id="sync-status">Connexion à la base de données...</span>
+            </p>
         </div>
-    </nav>
+    </footer>
 
-    <!-- ==================== MODALE 1 : CHOIX DU PROFIL ==================== -->
-    <div id="modal-profile" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl max-w-md w-full p-6 border border-neutral-200 shadow-2xl animate-fade-in">
-            <div class="mb-5">
-                <h3 class="text-lg font-bold text-black">Identification</h3>
-                <p class="text-xs text-neutral-500 mt-1">Choisissez votre rôle pour accéder à l'agenda.</p>
+    <!-- ===================================================================== -->
+    <!-- MODALES D'AJOUT ET DE GESTION                                         -->
+    <!-- ===================================================================== -->
+
+    <!-- MODALE 1 : GÉNÉRER UNE SÉRIE DE COURS (FÉLIX) -->
+    <div id="modal-batch-violin" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 hidden items-center justify-center p-4">
+        <div class="bg-white border border-black rounded-2xl max-w-md w-full p-6 shadow-2xl animate-fade-in">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg">Générer une journée de cours</h3>
+                <button onclick="closeModal('modal-batch-violin')" class="text-neutral-400 hover:text-black text-xl leading-none">&times;</button>
             </div>
-
-            <div class="space-y-4">
-                <div class="grid grid-cols-3 gap-2">
-                    <button type="button" onclick="selectRoleOption('student')" id="role-opt-student" class="role-opt p-3 rounded-lg border border-black bg-black text-white flex flex-col items-center text-center transition">
-                        <span class="text-xs font-semibold">Élève</span>
-                    </button>
-                    <button type="button" onclick="selectRoleOption('felix')" id="role-opt-felix" class="role-opt p-3 rounded-lg border border-neutral-300 bg-white text-black hover:border-black flex flex-col items-center text-center transition">
-                        <span class="text-xs font-semibold">Félix</span>
-                    </button>
-                    <button type="button" onclick="selectRoleOption('stephanie')" id="role-opt-stephanie" class="role-opt p-3 rounded-lg border border-neutral-300 bg-white text-black hover:border-black flex flex-col items-center text-center transition">
-                        <span class="text-xs font-semibold">Stéphanie</span>
-                    </button>
-                </div>
-
-                <div id="student-name-wrapper">
-                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1.5">Prénom et Nom</label>
-                    <input type="text" id="input-user-name" placeholder="Ex: Claire Dubois" class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
-                </div>
-
-                <div id="staff-info-box" class="hidden bg-neutral-100 border border-neutral-200 rounded-lg p-3 text-xs text-neutral-700">
-                    Vous pourrez publier vos créneaux et gérer les dates d'auditions.
-                </div>
-
-                <button onclick="saveProfile()" class="w-full bg-black hover:bg-neutral-800 text-white font-semibold py-3 rounded-lg text-xs uppercase tracking-wider transition">
-                    Continuer
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ==================== MODALE 2 : AJOUTER UN CRÉNEAU ==================== -->
-    <div id="modal-slot" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl max-w-md w-full p-6 border border-neutral-200 shadow-2xl animate-fade-in">
-            <div class="flex items-center justify-between mb-4">
-                <h3 id="modal-slot-title" class="text-lg font-bold text-black">Ajouter un créneau</h3>
-                <button onclick="closeModal('modal-slot')" class="p-1.5 rounded-lg hover:bg-neutral-100 text-neutral-600">
-                    <i class="ph-bold ph-x"></i>
-                </button>
-            </div>
-
-            <form id="form-slot" onsubmit="handleCreateSlot(event)" class="space-y-4">
-                <input type="hidden" id="slot-teacher-type" value="felix">
-                
+            <form onsubmit="handleCreateBatchViolin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Date</label>
-                    <input type="date" id="slot-date" required class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Date</label>
+                    <input type="date" id="batch-v-date" required class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
                 </div>
-
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Début</label>
-                        <input type="time" id="slot-start" required value="14:00" class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Début</label>
+                        <input type="time" id="batch-v-start" value="09:00" required class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Fin</label>
-                        <input type="time" id="slot-end" required value="15:00" class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Fin</label>
+                        <input type="time" id="batch-v-end" value="13:00" required class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
                     </div>
                 </div>
-
-                <div>
-                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Salle / Lieu (Optionnel)</label>
-                    <input type="text" id="slot-location" placeholder="Ex: Salle 12" class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
-                </div>
-
-                <div class="bg-neutral-50 p-3 rounded-lg border border-neutral-200">
-                    <label class="flex items-center gap-2.5 cursor-pointer">
-                        <input type="checkbox" id="slot-split-check" class="w-4 h-4 accent-black">
-                        <span class="text-xs font-medium text-neutral-800">Découper automatiquement en créneaux de :</span>
-                    </label>
-                    <div id="split-duration-box" class="hidden mt-2.5 pl-6">
-                        <select id="slot-duration" class="w-full px-3 py-2 rounded-lg border border-neutral-300 text-xs bg-white">
-                            <option value="30">30 minutes</option>
-                            <option value="45">45 minutes</option>
-                            <option value="60" selected>1 heure</option>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Durée d'un cours</label>
+                        <select id="batch-v-duration" class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black bg-white">
+                            <option value="30">30 min</option>
+                            <option value="45">45 min</option>
+                            <option value="60" selected>1h00 (60 min)</option>
+                            <option value="90">1h30 (90 min)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Pause entre cours</label>
+                        <select id="batch-v-break" class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black bg-white">
+                            <option value="0" selected>Aucune (0 min)</option>
+                            <option value="5">5 min</option>
+                            <option value="10">10 min</option>
+                            <option value="15">15 min</option>
                         </select>
                     </div>
                 </div>
-
-                <div class="pt-2 flex gap-2">
-                    <button type="button" onclick="closeModal('modal-slot')" class="flex-1 py-2.5 rounded-lg border border-neutral-300 text-neutral-700 font-semibold text-xs">Annuler</button>
-                    <button type="submit" class="flex-1 py-2.5 rounded-lg bg-black text-white font-semibold text-xs hover:bg-neutral-800">Publier</button>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Lieu / Salle (optionnel)</label>
+                    <input type="text" id="batch-v-room" placeholder="Ex: Salle 204, Studio..." class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-batch-violin')" class="px-4 py-2 text-xs font-semibold text-neutral-600 hover:text-black">Annuler</button>
+                    <button type="submit" class="bg-black text-white px-5 py-2.5 rounded-xl text-xs font-semibold hover:bg-neutral-800">Créer les créneaux</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- ==================== MODALE 3 : RÉSERVER UN CRÉNEAU ==================== -->
-    <div id="modal-book" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl max-w-md w-full p-6 border border-neutral-200 shadow-2xl animate-fade-in">
-            <div class="flex items-center justify-between mb-3">
-                <h3 class="text-lg font-bold text-black">Réserver ce créneau</h3>
-                <button onclick="closeModal('modal-book')" class="p-1.5 rounded-lg hover:bg-neutral-100 text-neutral-600">
-                    <i class="ph-bold ph-x"></i>
-                </button>
+    <!-- MODALE 2 : CRÉNEAU PERSONNALISÉ UNIQUE (FÉLIX) -->
+    <div id="modal-single-violin" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 hidden items-center justify-center p-4">
+        <div class="bg-white border border-black rounded-2xl max-w-md w-full p-6 shadow-2xl animate-fade-in">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg">Créneau personnalisé</h3>
+                <button onclick="closeModal('modal-single-violin')" class="text-neutral-400 hover:text-black text-xl leading-none">&times;</button>
             </div>
-            
-            <p id="book-slot-summary" class="text-xs font-semibold text-black bg-neutral-100 px-3.5 py-2.5 rounded-lg mb-4 border border-neutral-200"></p>
-
-            <form onsubmit="confirmBooking(event)" class="space-y-4">
-                <input type="hidden" id="book-slot-id">
-                
+            <form onsubmit="handleCreateSingleViolin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Nom de l'élève</label>
-                    <input type="text" id="book-student-name" required class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Date</label>
+                    <input type="date" id="single-v-date" required class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
                 </div>
-
-                <div>
-                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Programme / Œuvres</label>
-                    <input type="text" id="book-repertoire" placeholder="Ex: Concerto de Brahms (1er mvt)" class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
-                </div>
-
-                <div class="pt-2 flex gap-2">
-                    <button type="button" onclick="closeModal('modal-book')" class="flex-1 py-2.5 rounded-lg border border-neutral-300 text-neutral-700 font-semibold text-xs">Annuler</button>
-                    <button type="submit" class="flex-1 py-2.5 rounded-lg bg-black hover:bg-neutral-800 text-white font-semibold text-xs">Confirmer</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- ==================== MODALE 4 : AJOUTER UNE AUDITION ==================== -->
-    <div id="modal-audition" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl max-w-md w-full p-6 border border-neutral-200 shadow-2xl animate-fade-in">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-black">Nouvelle Audition</h3>
-                <button onclick="closeModal('modal-audition')" class="p-1.5 rounded-lg hover:bg-neutral-100 text-neutral-600">
-                    <i class="ph-bold ph-x"></i>
-                </button>
-            </div>
-
-            <form onsubmit="handleCreateAudition(event)" class="space-y-4">
-                <div>
-                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Titre</label>
-                    <input type="text" id="audition-title" required placeholder="Ex: Audition de classe" class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
-                </div>
-
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Date</label>
-                        <input type="date" id="audition-date" required class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Heure de début</label>
+                        <input type="time" id="single-v-start" value="14:00" required class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Heure</label>
-                        <input type="time" id="audition-time" required value="18:30" class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Durée (minutes)</label>
+                        <input type="number" id="single-v-duration" value="45" min="15" max="240" step="5" required class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
                     </div>
                 </div>
-
                 <div>
-                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Lieu</label>
-                    <input type="text" id="audition-location" required placeholder="Ex: Auditorium" class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Attribuer directement à un élève (optionnel)</label>
+                    <input type="text" id="single-v-student" placeholder="Laisser vide pour laisser libre" class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
                 </div>
-
                 <div>
-                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Informations complémentaires</label>
-                    <textarea id="audition-notes" rows="2" placeholder="Ex: Raccord piano dès 16h30" class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm"></textarea>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Note / Salle</label>
+                    <input type="text" id="single-v-room" placeholder="Ex: Rattrapage, Salle 102..." class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
                 </div>
-
-                <div class="pt-2 flex gap-2">
-                    <button type="button" onclick="closeModal('modal-audition')" class="flex-1 py-2.5 rounded-lg border border-neutral-300 text-neutral-700 font-semibold text-xs">Annuler</button>
-                    <button type="submit" class="flex-1 py-2.5 rounded-lg bg-black hover:bg-neutral-800 text-white font-semibold text-xs">Enregistrer</button>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-single-violin')" class="px-4 py-2 text-xs font-semibold text-neutral-600 hover:text-black">Annuler</button>
+                    <button type="submit" class="bg-black text-white px-5 py-2.5 rounded-xl text-xs font-semibold hover:bg-neutral-800">Ajouter</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- ==================== MODALE DE CONFIRMATION ==================== -->
-    <div id="modal-confirm" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl max-w-sm w-full p-6 border border-neutral-200 shadow-2xl text-center animate-fade-in">
-            <h4 id="confirm-title" class="text-base font-bold text-black">Confirmer l'action</h4>
-            <p id="confirm-message" class="text-xs text-neutral-600 mt-1.5 mb-5"></p>
-            <div class="flex gap-2">
-                <button onclick="closeModal('modal-confirm')" class="flex-1 py-2.5 rounded-lg border border-neutral-300 text-neutral-700 font-semibold text-xs">Annuler</button>
-                <button id="confirm-yes-btn" class="flex-1 py-2.5 rounded-lg bg-black hover:bg-neutral-800 text-white font-semibold text-xs">Confirmer</button>
+    <!-- MODALE 3 : DISPONIBILITÉS PIANO (STÉPHANIE) -->
+    <div id="modal-batch-piano" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 hidden items-center justify-center p-4">
+        <div class="bg-white border border-black rounded-2xl max-w-md w-full p-6 shadow-2xl animate-fade-in">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg">Disponibilités Piano (Stéphanie)</h3>
+                <button onclick="closeModal('modal-batch-piano')" class="text-neutral-400 hover:text-black text-xl leading-none">&times;</button>
             </div>
+            <form onsubmit="handleCreateBatchPiano(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Date</label>
+                    <input type="date" id="batch-p-date" required class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Début</label>
+                        <input type="time" id="batch-p-start" value="10:00" required class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Fin</label>
+                        <input type="time" id="batch-p-end" value="13:00" required class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Durée des créneaux</label>
+                    <select id="batch-p-duration" class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black bg-white">
+                        <option value="20">20 min</option>
+                        <option value="30" selected>30 min</option>
+                        <option value="45">45 min</option>
+                        <option value="60">60 min</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Salle</label>
+                    <input type="text" id="batch-p-room" placeholder="Ex: Studio Piano B" class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-batch-piano')" class="px-4 py-2 text-xs font-semibold text-neutral-600 hover:text-black">Annuler</button>
+                    <button type="submit" class="bg-black text-white px-5 py-2.5 rounded-xl text-xs font-semibold hover:bg-neutral-800">Publier</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- NOTIFICATION TOAST -->
-    <div id="toast" class="fixed top-20 right-4 left-4 sm:left-auto sm:w-80 bg-black text-white px-4 py-3 rounded-lg shadow-xl border border-neutral-800 z-50 transform transition-all duration-300 translate-y-[-150%] opacity-0 flex items-center gap-2.5">
-        <i id="toast-icon" class="ph-bold ph-check text-white text-base shrink-0"></i>
-        <p id="toast-msg" class="text-xs font-medium"></p>
+    <!-- MODALE 4 : NOUVELLE AUDITION -->
+    <div id="modal-audition" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 hidden items-center justify-center p-4">
+        <div class="bg-white border border-black rounded-2xl max-w-md w-full p-6 shadow-2xl animate-fade-in">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg">Ajouter une Audition</h3>
+                <button onclick="closeModal('modal-audition')" class="text-neutral-400 hover:text-black text-xl leading-none">&times;</button>
+            </div>
+            <form onsubmit="handleCreateAudition(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Titre de l'événement</label>
+                    <input type="text" id="aud-title" placeholder="Ex: Audition de classe — Répertoire romantique" required class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Date</label>
+                        <input type="date" id="aud-date" required class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Heure</label>
+                        <input type="time" id="aud-time" value="18:30" required class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Lieu / Salle de concert</label>
+                    <input type="text" id="aud-location" placeholder="Ex: Auditorium Tibor Varga" required class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Informations complémentaires</label>
+                    <textarea id="aud-notes" rows="2" placeholder="Ex: Tenue de concert, raccord avec Stéphanie à 16h00..." class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black"></textarea>
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-audition')" class="px-4 py-2 text-xs font-semibold text-neutral-600 hover:text-black">Annuler</button>
+                    <button type="submit" class="bg-black text-white px-5 py-2.5 rounded-xl text-xs font-semibold hover:bg-neutral-800">Enregistrer</button>
+                </div>
+            </form>
+        </div>
     </div>
 
-    <!-- ==================== LOGIQUE JAVASCRIPT & FIREBASE ==================== -->
+    <!-- MODALE 5 : INSCRIPTION ÉLÈVE À UN CRÉNEAU (Avec choix d'œuvre) -->
+    <div id="modal-book-slot" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 hidden items-center justify-center p-4">
+        <div class="bg-white border border-black rounded-2xl max-w-md w-full p-6 shadow-2xl animate-fade-in">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="font-bold text-lg">Réserver ce créneau</h3>
+                <button onclick="closeModal('modal-book-slot')" class="text-neutral-400 hover:text-black text-xl leading-none">&times;</button>
+            </div>
+            <p id="book-slot-summary" class="text-xs text-neutral-500 mb-4 font-medium"></p>
+            <form onsubmit="confirmBooking(event)" class="space-y-4">
+                <input type="hidden" id="book-slot-id">
+                <input type="hidden" id="book-slot-type">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Votre prénom & nom</label>
+                    <input type="text" id="book-student-name" required placeholder="Ex: Camille Martin" class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Œuvre(s) travaillée(s) (optionnel)</label>
+                    <input type="text" id="book-piece" placeholder="Ex: Brahms Sonate n°1, Bach Chaconne..." class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-book-slot')" class="px-4 py-2 text-xs font-semibold text-neutral-600 hover:text-black">Annuler</button>
+                    <button type="submit" class="bg-black text-white px-5 py-2.5 rounded-xl text-xs font-semibold hover:bg-neutral-800">Confirmer l'inscription</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODALE 6 : AJOUTER UNE PAUSE (FÉLIX OU STÉPHANIE) -->
+    <div id="modal-break" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 hidden items-center justify-center p-4">
+        <div class="bg-white border border-black rounded-2xl max-w-md w-full p-6 shadow-2xl animate-fade-in">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg" id="break-modal-title">Ajouter une pause</h3>
+                <button onclick="closeModal('modal-break')" class="text-neutral-400 hover:text-black text-xl leading-none">&times;</button>
+            </div>
+            <form onsubmit="handleCreateBreak(event)" class="space-y-4">
+                <input type="hidden" id="break-target-type">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Date</label>
+                    <input type="date" id="break-date" required class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Début de la pause</label>
+                        <input type="time" id="break-start" value="12:00" required class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Durée (minutes)</label>
+                        <input type="number" id="break-duration" value="60" min="5" max="240" step="5" required class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">Libellé</label>
+                    <input type="text" id="break-label" value="Pause repas" placeholder="Ex: Pause repas, Pause café..." required class="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black">
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-break')" class="px-4 py-2 text-xs font-semibold text-neutral-600 hover:text-black">Annuler</button>
+                    <button type="submit" class="bg-black text-white px-5 py-2.5 rounded-xl text-xs font-semibold hover:bg-neutral-800">Bloquer ce créneau</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- LOGIQUE APPLICATIVE CONNECTÉE À FIREBASE FIRESTORE                    -->
+    <!-- ===================================================================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getDatabase, ref, push, update, remove, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, updateDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Configuration Firebase exacte fournie par l'utilisateur
+        // Configuration Firebase fournie
         const firebaseConfig = {
             apiKey: "AIzaSyB6R1M0LB9a3Xv9C5nLgKv4BG7PWFL-7uc",
             authDomain: "classe-felix.firebaseapp.com",
@@ -402,590 +439,160 @@
             measurementId: "G-EVDCGV5171"
         };
 
-        // Initialisation directe de Firebase et Realtime Database
         const app = initializeApp(firebaseConfig);
-        const rtdb = getDatabase(app);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'classe-felix';
 
-        // Références propres dans la base de données
-        const slotsDbRef = ref(rtdb, 'classe_felix/slots');
-        const auditionsDbRef = ref(rtdb, 'classe_felix/auditions');
-        const connectedRef = ref(rtdb, '.info/connected');
+        // Chemins Firestore stricts
+        const getCollectionRef = (colName) => collection(db, 'artifacts', appId, 'public', 'data', colName);
+        const getDocRef = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data', colName, docId);
 
-        // Identifiant de session léger en mémoire
-        const sessionUserId = 'usr_' + Math.random().toString(36).substring(2, 10);
+        let currentUser = null;
+        let currentRole = 'student'; // 'student' | 'felix' | 'stephanie'
+        let currentStudentName = '';
+        let activeTab = 'violin';
 
-        let userProfile = {
-            role: 'student',
-            name: ''
+        let appState = {
+            violinSlots: [],
+            pianoSlots: [],
+            auditions: []
         };
-        let activeTab = 'felix';
-        let allSlots = [];
-        let allAuditions = [];
 
-        // ==================== INITIALISATION ====================
-        function initApp() {
-            setupPwaManifest();
+        // --- AUTHENTIFICATION & SYNCHRONISATION TEMPS RÉEL ---
 
-            // Surveillance directe de la connexion au serveur Firebase RTDB
-            onValue(connectedRef, (snap) => {
-                const dot = document.getElementById('db-status-dot');
-                if (snap.val() === true) {
-                    dot.className = 'w-2 h-2 rounded-full bg-white';
-                    dot.title = 'Connecté au serveur';
+        async function initFirebase() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
                 } else {
-                    dot.className = 'w-2 h-2 rounded-full bg-neutral-600';
-                    dot.title = 'Connexion en cours...';
+                    await signInAnonymously(auth);
                 }
-            });
-
-            // Écoute temps réel des créneaux
-            onValue(slotsDbRef, (snapshot) => {
-                document.getElementById('firebase-error-banner').classList.add('hidden');
-                const val = snapshot.val();
-                allSlots = val ? Object.entries(val).map(([id, data]) => ({ id, ...data })) : [];
-                renderSlots();
-                document.getElementById('loading-state').classList.add('hidden');
-                switchTab(activeTab);
-            }, (error) => {
-                console.error("Erreur Firebase RTDB:", error);
-                document.getElementById('loading-state').classList.add('hidden');
-                document.getElementById('firebase-error-banner').classList.remove('hidden');
-                document.getElementById('firebase-error-detail').textContent = `Erreur serveur (${error.code || error.message}). Vérifiez les règles de votre Realtime Database.`;
-                switchTab(activeTab);
-            });
-
-            // Écoute temps réel des auditions
-            onValue(auditionsDbRef, (snapshot) => {
-                const val = snapshot.val();
-                allAuditions = val ? Object.entries(val).map(([id, data]) => ({ id, ...data })) : [];
-                renderAuditions();
-            }, (error) => {
-                console.error("Erreur lecture auditions:", error);
-            });
-
-            // Ouvrir la sélection du profil au démarrage
-            openProfileModal();
+            } catch (error) {
+                console.error("Erreur d'authentification:", error);
+                updateSyncStatus(false, "Erreur de connexion");
+            }
         }
 
-        // ==================== GESTION DU PROFIL ====================
-        let selectedRoleTemp = 'student';
-
-        window.openProfileModal = function() {
-            selectedRoleTemp = userProfile.role || 'student';
-            document.getElementById('input-user-name').value = userProfile.role === 'student' ? (userProfile.name || '') : '';
-            selectRoleOption(selectedRoleTemp);
-            document.getElementById('modal-profile').classList.remove('hidden');
-        };
-
-        window.selectRoleOption = function(role) {
-            selectedRoleTemp = role;
-            document.querySelectorAll('.role-opt').forEach(btn => {
-                btn.className = 'role-opt p-3 rounded-lg border border-neutral-300 bg-white text-black hover:border-black flex flex-col items-center text-center transition';
-            });
-            const activeBtn = document.getElementById(`role-opt-${role}`);
-            if (activeBtn) {
-                activeBtn.className = 'role-opt p-3 rounded-lg border border-black bg-black text-white flex flex-col items-center text-center transition';
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                updateSyncStatus(true, "Synchronisé en direct");
+                subscribeToCollections();
             }
-
-            const studentWrapper = document.getElementById('student-name-wrapper');
-            const staffInfo = document.getElementById('staff-info-box');
-            if (role === 'student') {
-                studentWrapper.classList.remove('hidden');
-                staffInfo.classList.add('hidden');
-            } else {
-                studentWrapper.classList.add('hidden');
-                staffInfo.classList.remove('hidden');
-            }
-        };
-
-        window.saveProfile = function() {
-            let finalName = '';
-
-            if (selectedRoleTemp === 'felix') {
-                finalName = 'Félix Froschhammer';
-            } else if (selectedRoleTemp === 'stephanie') {
-                finalName = 'Stéphanie Gurga';
-            } else {
-                finalName = document.getElementById('input-user-name').value.trim();
-                if (!finalName) {
-                    showToast("Veuillez indiquer votre prénom et nom.", "error");
-                    return;
-                }
-            }
-
-            userProfile = { role: selectedRoleTemp, name: finalName };
-            updateProfileUI();
-            closeModal('modal-profile');
-            showToast(`Connecté : ${finalName}`);
-        };
-
-        function updateProfileUI() {
-            document.getElementById('profile-name-display').textContent = userProfile.name || 'Élève';
-
-            const isFelix = userProfile.role === 'felix';
-            const isStephanie = userProfile.role === 'stephanie';
-            const isStaff = isFelix || isStephanie;
-
-            toggleStaffButtons('btn-add-felix', isFelix);
-            toggleStaffButtons('btn-add-stephanie', isStaff);
-            toggleStaffButtons('btn-add-audition', isStaff);
-
-            renderSlots();
-            renderAuditions();
-        }
-
-        function toggleStaffButtons(baseId, show) {
-            const desktopBtn = document.getElementById(baseId);
-            const mobileBtn = document.getElementById(`${baseId}-mobile`);
-            if (desktopBtn) show ? desktopBtn.classList.remove('hidden') : desktopBtn.classList.add('hidden');
-            if (mobileBtn) show ? mobileBtn.classList.remove('hidden') : mobileBtn.classList.add('hidden');
-        }
-
-        // ==================== ONGLETS ====================
-        window.switchTab = function(tabName) {
-            activeTab = tabName;
-            ['felix', 'stephanie', 'auditions'].forEach(t => {
-                const view = document.getElementById(`view-${t}`);
-                t === tabName ? view.classList.remove('hidden') : view.classList.add('hidden');
-            });
-
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                if (btn.dataset.tab === tabName) {
-                    btn.className = 'tab-btn py-3 text-xs uppercase tracking-wider font-semibold border-b-2 border-white text-white transition';
-                } else {
-                    btn.className = 'tab-btn py-3 text-xs uppercase tracking-wider font-semibold border-b-2 border-transparent text-neutral-400 hover:text-white transition';
-                }
-            });
-
-            document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
-                if (btn.dataset.tab === tabName) {
-                    btn.className = 'mobile-tab-btn flex flex-col items-center justify-center py-2 rounded-lg text-white bg-black font-semibold transition';
-                } else {
-                    btn.className = 'mobile-tab-btn flex flex-col items-center justify-center py-2 rounded-lg text-neutral-500 font-medium transition';
-                }
-            });
-        };
-
-        // ==================== CRÉATION DE CRÉNEAUX ====================
-        document.getElementById('slot-split-check').addEventListener('change', (e) => {
-            const box = document.getElementById('split-duration-box');
-            e.target.checked ? box.classList.remove('hidden') : box.classList.add('hidden');
         });
 
-        window.openSlotModal = function(teacherType) {
-            document.getElementById('slot-teacher-type').value = teacherType;
-            document.getElementById('modal-slot-title').textContent = teacherType === 'felix'
-                ? 'Proposer un cours (Félix)'
-                : 'Disponibilité Piano (Stéphanie)';
-            
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            document.getElementById('slot-date').value = tomorrow.toISOString().split('T')[0];
-            document.getElementById('slot-split-check').checked = false;
-            document.getElementById('split-duration-box').classList.add('hidden');
-            
-            document.getElementById('modal-slot').classList.remove('hidden');
-        };
-
-        window.handleCreateSlot = async function(e) {
-            e.preventDefault();
-
-            const teacher = document.getElementById('slot-teacher-type').value;
-            const date = document.getElementById('slot-date').value;
-            const start = document.getElementById('slot-start').value;
-            const end = document.getElementById('slot-end').value;
-            const location = document.getElementById('slot-location').value.trim();
-            const shouldSplit = document.getElementById('slot-split-check').checked;
-            const durationMins = parseInt(document.getElementById('slot-duration').value, 10);
-
-            if (start >= end) {
-                showToast("L'heure de fin doit être après l'heure de début.", "error");
-                return;
+        function updateSyncStatus(connected, text) {
+            const indicator = document.getElementById('sync-indicator');
+            const statusText = document.getElementById('sync-status');
+            if (indicator && statusText) {
+                indicator.className = `w-2 h-2 rounded-full inline-block ${connected ? 'bg-black' : 'bg-neutral-400'}`;
+                statusText.textContent = text;
             }
-
-            const slotsToCreate = [];
-
-            if (shouldSplit) {
-                let currentMins = timeToMinutes(start);
-                const endMins = timeToMinutes(end);
-                while (currentMins + durationMins <= endMins) {
-                    slotsToCreate.push({
-                        teacher,
-                        date,
-                        startTime: minutesToTime(currentMins),
-                        endTime: minutesToTime(currentMins + durationMins),
-                        location,
-                        bookedBy: '',
-                        bookedByUid: '',
-                        repertoire: '',
-                        createdAt: Date.now()
-                    });
-                    currentMins += durationMins;
-                }
-                if (slotsToCreate.length === 0) {
-                    showToast("Plage horaire trop courte pour cette durée.", "error");
-                    return;
-                }
-            } else {
-                slotsToCreate.push({
-                    teacher,
-                    date,
-                    startTime: start,
-                    endTime: end,
-                    location,
-                    bookedBy: '',
-                    bookedByUid: '',
-                    repertoire: '',
-                    createdAt: Date.now()
-                });
-            }
-
-            closeModal('modal-slot');
-
-            try {
-                for (const slot of slotsToCreate) {
-                    await push(slotsDbRef, slot);
-                }
-                showToast(`${slotsToCreate.length} créneau(x) publié(s).`);
-            } catch (err) {
-                console.error("Erreur écriture RTDB:", err);
-                showToast("Erreur serveur lors de l'enregistrement.", "error");
-            }
-        };
-
-        // ==================== RÉSERVATION & ANNULATION ====================
-        window.openBookModal = function(slotId) {
-            const slot = allSlots.find(s => s.id === slotId);
-            if (!slot) return;
-
-            document.getElementById('book-slot-id').value = slot.id;
-            document.getElementById('book-student-name').value = userProfile.role === 'student' ? userProfile.name : '';
-            document.getElementById('book-repertoire').value = '';
-            
-            const formattedDate = formatFrenchDate(slot.date);
-            document.getElementById('book-slot-summary').textContent = `${formattedDate} • ${slot.startTime} - ${slot.endTime}`;
-            
-            document.getElementById('modal-book').classList.remove('hidden');
-        };
-
-        window.confirmBooking = async function(e) {
-            e.preventDefault();
-
-            const slotId = document.getElementById('book-slot-id').value;
-            const studentName = document.getElementById('book-student-name').value.trim();
-            const repertoire = document.getElementById('book-repertoire').value.trim();
-
-            if (!studentName) return;
-
-            closeModal('modal-book');
-
-            try {
-                const slotRef = ref(rtdb, `classe_felix/slots/${slotId}`);
-                await update(slotRef, {
-                    bookedBy: studentName,
-                    bookedByUid: sessionUserId,
-                    repertoire: repertoire
-                });
-                showToast("Créneau réservé.");
-            } catch (err) {
-                console.error("Erreur réservation:", err);
-                showToast("Erreur lors de la réservation.", "error");
-            }
-        };
-
-        window.cancelBooking = function(slotId) {
-            openConfirmModal(
-                "Libérer ce créneau ?",
-                "Le créneau redeviendra disponible pour toute la classe.",
-                async () => {
-                    try {
-                        const slotRef = ref(rtdb, `classe_felix/slots/${slotId}`);
-                        await update(slotRef, {
-                            bookedBy: '',
-                            bookedByUid: '',
-                            repertoire: ''
-                        });
-                        showToast("Créneau libéré.");
-                    } catch (err) {
-                        showToast("Erreur lors de l'annulation.", "error");
-                    }
-                }
-            );
-        };
-
-        window.deleteSlot = function(slotId) {
-            openConfirmModal(
-                "Supprimer ce créneau ?",
-                "Cette action est définitive.",
-                async () => {
-                    try {
-                        const slotRef = ref(rtdb, `classe_felix/slots/${slotId}`);
-                        await remove(slotRef);
-                        showToast("Créneau supprimé.");
-                    } catch (err) {
-                        showToast("Erreur lors de la suppression.", "error");
-                    }
-                }
-            );
-        };
-
-        // ==================== AFFICHAGE DES CRÉNEAUX ====================
-        function renderSlots() {
-            renderTeacherSlots('felix', 'felix-slots-container');
-            renderTeacherSlots('stephanie', 'stephanie-slots-container');
         }
 
-        function renderTeacherSlots(teacherType, containerId) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
+        function subscribeToCollections() {
+            if (!currentUser) return;
 
-            const filtered = allSlots
-                .filter(s => s.teacher === teacherType)
-                .sort((a, b) => {
-                    if (a.date !== b.date) return a.date.localeCompare(b.date);
-                    return a.startTime.localeCompare(b.startTime);
-                });
+            // Écoute des cours de violon
+            onSnapshot(getCollectionRef('violinSlots'), (snapshot) => {
+                appState.violinSlots = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderAll();
+            }, (err) => console.error("Erreur violinSlots:", err));
 
-            if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="rounded-xl p-8 text-center border border-dashed border-neutral-300">
-                        <p class="text-sm font-medium text-neutral-800">Aucun créneau proposé</p>
-                        <p class="text-xs text-neutral-500 mt-1">Les disponibilités apparaîtront ici dès leur publication.</p>
-                    </div>
-                `;
-                return;
-            }
+            // Écoute des répétitions piano
+            onSnapshot(getCollectionRef('pianoSlots'), (snapshot) => {
+                appState.pianoSlots = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderAll();
+            }, (err) => console.error("Erreur pianoSlots:", err));
 
-            const groupedByDate = {};
-            filtered.forEach(slot => {
-                if (!groupedByDate[slot.date]) groupedByDate[slot.date] = [];
-                groupedByDate[slot.date].push(slot);
+            // Écoute des auditions
+            onSnapshot(getCollectionRef('auditions'), (snapshot) => {
+                appState.auditions = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderAll();
+            }, (err) => console.error("Erreur auditions:", err));
+        }
+
+        // Initialisation des dates par défaut dans les formulaires
+        const getTodayStr = () => new Date().toISOString().split('T')[0];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const today = getTodayStr();
+            document.getElementById('batch-v-date').value = today;
+            document.getElementById('single-v-date').value = today;
+            document.getElementById('batch-p-date').value = today;
+            document.getElementById('aud-date').value = today;
+            document.getElementById('break-date').value = today;
+
+            updateUIForRole();
+            renderAll();
+            initFirebase();
+        });
+
+        // --- GESTION DES RÔLES & ONGLETS ---
+
+        window.handleRoleChange = () => {
+            currentRole = document.getElementById('role-selector').value;
+            updateUIForRole();
+            renderAll();
+        };
+
+        window.updateStudentName = (val) => {
+            currentStudentName = val.trim();
+            document.getElementById('student-avatar').textContent = currentStudentName ? currentStudentName.charAt(0).toUpperCase() : '?';
+            renderAll();
+        };
+
+        function updateUIForRole() {
+            const studentBanner = document.getElementById('student-banner');
+            const felixControls = document.getElementById('felix-controls');
+            const stephanieControls = document.getElementById('stephanie-controls');
+            const auditionControls = document.getElementById('audition-controls');
+
+            studentBanner.classList.toggle('hidden', currentRole !== 'student');
+            felixControls.classList.toggle('hidden', currentRole !== 'felix');
+            felixControls.classList.toggle('flex', currentRole === 'felix');
+
+            const canManagePiano = (currentRole === 'stephanie' || currentRole === 'felix');
+            stephanieControls.classList.toggle('hidden', !canManagePiano);
+            stephanieControls.classList.toggle('flex', canManagePiano);
+
+            auditionControls.classList.toggle('hidden', currentRole === 'student');
+        }
+
+        window.switchTab = (tab) => {
+            activeTab = tab;
+            ['violin', 'piano', 'auditions'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                const view = document.getElementById(`view-${t}`);
+                if (t === tab) {
+                    btn.classList.remove('border-transparent', 'text-neutral-500', 'font-medium');
+                    btn.classList.add('border-black', 'text-black', 'font-semibold');
+                    view.classList.remove('hidden');
+                } else {
+                    btn.classList.add('border-transparent', 'text-neutral-500', 'font-medium');
+                    btn.classList.remove('border-black', 'text-black', 'font-semibold');
+                    view.classList.add('hidden');
+                }
             });
-
-            const isStaff = userProfile.role === 'felix' || userProfile.role === 'stephanie';
-
-            container.innerHTML = Object.keys(groupedByDate).map(date => {
-                const daySlots = groupedByDate[date];
-                const formattedDate = formatFrenchDate(date);
-
-                const slotsHtml = daySlots.map(slot => {
-                    const isBooked = Boolean(slot.bookedBy);
-                    const isMyBooking = isBooked && (
-                        slot.bookedByUid === sessionUserId ||
-                        (userProfile.name && slot.bookedBy.toLowerCase() === userProfile.name.toLowerCase())
-                    );
-
-                    return `
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border transition ${
-                            isBooked 
-                                ? 'bg-neutral-50 border-neutral-200' 
-                                : 'bg-white border-neutral-300 hover:border-black'
-                        }">
-                            <div class="flex items-start sm:items-center gap-3.5">
-                                <div class="px-3 py-2 rounded-lg font-bold text-xs shrink-0 text-center ${
-                                    isBooked ? 'bg-neutral-200 text-neutral-700' : 'bg-black text-white'
-                                }">
-                                    <div>${slot.startTime}</div>
-                                    <div class="text-[11px] font-normal opacity-75">${slot.endTime}</div>
-                                </div>
-
-                                <div>
-                                    ${isBooked ? `
-                                        <div class="flex items-center gap-2 flex-wrap">
-                                            <span class="font-bold text-black text-sm">${escapeHtml(slot.bookedBy)}</span>
-                                            ${isMyBooking ? '<span class="text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded bg-black text-white">Vous</span>' : ''}
-                                        </div>
-                                        ${slot.repertoire ? `<p class="text-xs text-neutral-600 mt-0.5">${escapeHtml(slot.repertoire)}</p>` : ''}
-                                    ` : `
-                                        <div class="flex items-center gap-2">
-                                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-black"></span>
-                                            <span class="font-semibold text-black text-sm">Disponible</span>
-                                        </div>
-                                    `}
-                                    ${slot.location ? `<p class="text-[11px] text-neutral-500 mt-1">${escapeHtml(slot.location)}</p>` : ''}
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-neutral-200">
-                                ${!isBooked ? `
-                                    <button onclick="openBookModal('${slot.id}')" class="w-full sm:w-auto px-4 py-2 rounded-lg bg-black hover:bg-neutral-800 text-white text-xs font-semibold transition">
-                                        Réserver
-                                    </button>
-                                ` : ''}
-
-                                ${(isMyBooking || isStaff) && isBooked ? `
-                                    <button onclick="cancelBooking('${slot.id}')" class="px-3 py-1.5 rounded-lg border border-neutral-300 hover:border-black text-black text-xs font-medium transition">
-                                        Libérer
-                                    </button>
-                                ` : ''}
-
-                                ${isStaff ? `
-                                    <button onclick="deleteSlot('${slot.id}')" title="Supprimer" class="p-1.5 rounded-lg text-neutral-500 hover:text-black hover:bg-neutral-100 transition">
-                                        <i class="ph-bold ph-trash text-sm"></i>
-                                    </button>
-                                ` : ''}
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-                return `
-                    <div class="space-y-2.5">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-500 px-0.5">
-                            ${formattedDate}
-                        </h3>
-                        <div class="space-y-2">
-                            ${slotsHtml}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // ==================== AUDITIONS ====================
-        window.openAuditionModal = function() {
-            const nextMonth = new Date();
-            nextMonth.setDate(nextMonth.getDate() + 14);
-            document.getElementById('audition-date').value = nextMonth.toISOString().split('T')[0];
-            document.getElementById('audition-title').value = '';
-            document.getElementById('audition-location').value = '';
-            document.getElementById('audition-notes').value = '';
-            document.getElementById('modal-audition').classList.remove('hidden');
         };
 
-        window.handleCreateAudition = async function(e) {
-            e.preventDefault();
+        // --- UTILITAIRES ---
 
-            const newAudition = {
-                title: document.getElementById('audition-title').value.trim(),
-                date: document.getElementById('audition-date').value,
-                time: document.getElementById('audition-time').value,
-                location: document.getElementById('audition-location').value.trim(),
-                notes: document.getElementById('audition-notes').value.trim(),
-                createdAt: Date.now()
-            };
-
-            closeModal('modal-audition');
-
-            try {
-                await push(auditionsDbRef, newAudition);
-                showToast("Audition ajoutée.");
-            } catch (err) {
-                console.error("Erreur ajout audition:", err);
-                showToast("Erreur lors de l'ajout.", "error");
-            }
-        };
-
-        window.deleteAudition = function(auditionId) {
-            openConfirmModal(
-                "Supprimer cette audition ?",
-                "L'événement sera retiré de la liste.",
-                async () => {
-                    try {
-                        const auditionRef = ref(rtdb, `classe_felix/auditions/${auditionId}`);
-                        await remove(auditionRef);
-                        showToast("Audition supprimée.");
-                    } catch (err) {
-                        showToast("Erreur lors de la suppression.", "error");
-                    }
-                }
-            );
-        };
-
-        function renderAuditions() {
-            const container = document.getElementById('auditions-container');
-            if (!container) return;
-
-            const sorted = [...allAuditions].sort((a, b) => a.date.localeCompare(b.date));
-            const isStaff = userProfile.role === 'felix' || userProfile.role === 'stephanie';
-
-            if (sorted.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-full rounded-xl p-8 text-center border border-dashed border-neutral-300">
-                        <p class="text-sm font-medium text-neutral-800">Aucune audition programmée</p>
-                        <p class="text-xs text-neutral-500 mt-1">Les prochaines dates d'auditions s'afficheront ici.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = sorted.map(item => {
-                const dateObj = new Date(item.date + 'T00:00:00');
-                const dayNum = dateObj.getDate();
-                const monthShort = dateObj.toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '');
-                const fullDate = formatFrenchDate(item.date);
-
-                return `
-                    <div class="bg-white rounded-xl p-5 border border-neutral-300 flex flex-col justify-between gap-4">
-                        <div class="flex items-start gap-4">
-                            <div class="w-12 h-14 rounded-lg bg-black text-white flex flex-col items-center justify-center shrink-0">
-                                <span class="text-lg font-bold leading-none">${dayNum}</span>
-                                <span class="text-[10px] uppercase tracking-wider text-neutral-300 font-semibold mt-1">${monthShort}</span>
-                            </div>
-
-                            <div class="flex-1 min-w-0">
-                                <h3 class="text-base font-bold text-black leading-snug">${escapeHtml(item.title)}</h3>
-                                <p class="text-xs font-medium text-neutral-700 mt-1 capitalize">${fullDate} • ${item.time}</p>
-                                <p class="text-xs text-neutral-500 mt-0.5">${escapeHtml(item.location)}</p>
-                            </div>
-
-                            ${isStaff ? `
-                                <button onclick="deleteAudition('${item.id}')" class="p-1.5 rounded-lg text-neutral-500 hover:text-black hover:bg-neutral-100 transition shrink-0">
-                                    <i class="ph-bold ph-trash text-sm"></i>
-                                </button>
-                            ` : ''}
-                        </div>
-
-                        ${item.notes ? `
-                            <div class="bg-neutral-50 rounded-lg p-3 text-xs text-neutral-700 border border-neutral-200">
-                                ${escapeHtml(item.notes)}
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-            }).join('');
+        function formatDateFrench(dateStr) {
+            if (!dateStr) return '';
+            const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            const dateObj = new Date(dateStr + 'T00:00:00');
+            const formatted = dateObj.toLocaleDateString('fr-FR', options);
+            return formatted.charAt(0).toUpperCase() + formatted.slice(1);
         }
 
-        // ==================== UTILITAIRES ====================
-        window.closeModal = function(id) {
-            document.getElementById(id).classList.add('hidden');
-        };
-
-        function openConfirmModal(title, message, onConfirm) {
-            document.getElementById('confirm-title').textContent = title;
-            document.getElementById('confirm-message').textContent = message;
-            const yesBtn = document.getElementById('confirm-yes-btn');
-            yesBtn.onclick = () => {
-                closeModal('modal-confirm');
-                onConfirm();
-            };
-            document.getElementById('modal-confirm').classList.remove('hidden');
-        }
-
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const icon = document.getElementById('toast-icon');
-            const msg = document.getElementById('toast-msg');
-
-            msg.textContent = message;
-            icon.className = type === 'error'
-                ? 'ph-bold ph-warning text-white text-base shrink-0'
-                : 'ph-bold ph-check text-white text-base shrink-0';
-
-            toast.classList.remove('translate-y-[-150%]', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-[-150%]', 'opacity-0');
-            }, 3000);
-        }
-
-        function formatFrenchDate(isoDateStr) {
-            if (!isoDateStr) return '';
-            const date = new Date(isoDateStr + 'T00:00:00');
-            return date.toLocaleDateString('fr-FR', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long'
-            });
+        function addMinutesToTime(timeStr, minsToAdd) {
+            const [h, m] = timeStr.split(':').map(Number);
+            const totalMins = h * 60 + m + parseInt(minsToAdd, 10);
+            const newH = Math.floor(totalMins / 60) % 24;
+            const newM = totalMins % 60;
+            return `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
         }
 
         function timeToMinutes(timeStr) {
@@ -993,44 +600,516 @@
             return h * 60 + m;
         }
 
-        function minutesToTime(totalMins) {
-            const h = Math.floor(totalMins / 60).toString().padStart(2, '0');
-            const m = (totalMins % 60).toString().padStart(2, '0');
-            return `${h}:${m}`;
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'bg-black text-white text-xs font-medium px-4 py-3 rounded-xl shadow-lg border border-neutral-800 animate-fade-in';
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+        // --- RENDU DES VUES ---
+
+        function renderAll() {
+            renderSlotList('violin', appState.violinSlots, 'violin-slots-container');
+            renderSlotList('piano', appState.pianoSlots, 'piano-slots-container');
+            renderAuditions();
         }
 
-        function setupPwaManifest() {
-            const manifest = {
-                name: "Classe de Violon - Félix Froschhammer",
-                short_name: "Classe Félix",
-                description: "Agenda des cours de violon, accompagnement piano et auditions.",
-                start_url: ".",
-                display: "standalone",
-                background_color: "#ffffff",
-                theme_color: "#000000",
-                icons: [
-                    {
-                        src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23000000'/%3E%3Ctext x='50%25' y='54%25' font-size='220' font-family='sans-serif' font-weight='bold' fill='%23ffffff' text-anchor='middle' dominant-baseline='middle'%3EFF%3C/text%3E%3C/svg%3E",
-                        sizes: "512x512",
-                        type: "image/svg+xml"
+        function renderSlotList(type, slotsArray, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            if (slotsArray.length === 0) {
+                container.innerHTML = `
+                    <div class="border border-dashed border-neutral-300 rounded-2xl p-8 text-center">
+                        <p class="text-sm text-neutral-500">Aucun créneau programmé pour le moment.</p>
+                    </div>`;
+                return;
+            }
+
+            const sorted = [...slotsArray].sort((a, b) => {
+                if (a.date !== b.date) return a.date.localeCompare(b.date);
+                return timeToMinutes(a.startTime) - timeToMinutes(b.startTime);
+            });
+
+            const grouped = sorted.reduce((acc, slot) => {
+                if (!acc[slot.date]) acc[slot.date] = [];
+                acc[slot.date].push(slot);
+                return acc;
+            }, {});
+
+            Object.keys(grouped).forEach(date => {
+                const daySection = document.createElement('div');
+                daySection.className = 'border border-neutral-200 rounded-2xl overflow-hidden bg-white shadow-2xs';
+
+                const dayHeader = `
+                    <div class="bg-neutral-50 px-5 py-3.5 border-b border-neutral-200 flex items-center justify-between">
+                        <h3 class="font-semibold text-sm sm:text-base tracking-tight">${formatDateFrench(date)}</h3>
+                        <span class="text-[11px] font-medium text-neutral-500">${grouped[date].length} créneau(x)</span>
+                    </div>
+                `;
+
+                const slotsHtml = grouped[date].map(slot => {
+                    const endTime = addMinutesToTime(slot.startTime, slot.duration);
+                    const isBreak = Boolean(slot.isBreak);
+                    const isBooked = Boolean(slot.studentName) && !isBreak;
+                    const isMyBooking = isBooked && currentStudentName && slot.studentName.toLowerCase() === currentStudentName.toLowerCase();
+
+                    // Affichage spécifique pour une PAUSE
+                    if (isBreak) {
+                        return `
+                            <div class="px-5 py-3 flex items-center justify-between gap-3 border-b last:border-b-0 border-neutral-100 bg-neutral-100/80 text-neutral-600">
+                                <div class="flex items-center gap-4">
+                                    <div class="min-w-[105px]">
+                                        <span class="font-semibold text-xs tracking-tight block">${slot.startTime} – ${endTime}</span>
+                                        <span class="text-[11px] text-neutral-400">${slot.duration} min</span>
+                                    </div>
+                                    <div class="border-l border-neutral-300 pl-4 flex items-center gap-2">
+                                        <span class="text-xs font-semibold uppercase tracking-wider text-neutral-700">${slot.breakLabel || 'Pause'}</span>
+                                    </div>
+                                </div>
+                                ${currentRole !== 'student' ? `
+                                    <button onclick="deleteSlot('${type}', '${slot.id}')" title="Supprimer cette pause" class="text-neutral-400 hover:text-black p-1.5 rounded-lg transition">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        `;
                     }
-                ]
-            };
-            const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-            document.getElementById('pwa-manifest').setAttribute('href', URL.createObjectURL(blob));
+
+                    const rowBg = isBooked ? 'bg-neutral-50/70' : 'bg-white hover:bg-neutral-50';
+                    let actionBtn = '';
+
+                    if (currentRole === 'student') {
+                        if (!isBooked) {
+                            actionBtn = `<button onclick="openBookingModal('${type}', '${slot.id}')" class="bg-black text-white text-xs font-semibold px-4 py-2 rounded-xl hover:bg-neutral-800 transition shrink-0">Choisir</button>`;
+                        } else if (isMyBooking) {
+                            actionBtn = `<button onclick="cancelBooking('${type}', '${slot.id}')" class="bg-white text-black border border-black text-xs font-semibold px-3 py-1.5 rounded-xl hover:bg-neutral-100 transition shrink-0">Annuler</button>`;
+                        } else {
+                            actionBtn = `<span class="text-xs font-medium text-neutral-400 px-3 py-1.5">Réservé</span>`;
+                        }
+                    } else {
+                        actionBtn = `
+                            <div class="flex items-center gap-2">
+                                ${isBooked ? `<button onclick="cancelBooking('${type}', '${slot.id}')" title="Libérer le créneau" class="text-xs text-neutral-500 hover:text-black underline px-2 py-1">Libérer</button>` : ''}
+                                <button onclick="deleteSlot('${type}', '${slot.id}')" title="Supprimer ce créneau" class="text-neutral-400 hover:text-black p-1.5 rounded-lg border border-transparent hover:border-neutral-300 transition">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    return `
+                        <div class="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b last:border-b-0 border-neutral-100 transition ${rowBg}">
+                            <div class="flex items-start sm:items-center gap-4">
+                                <div class="min-w-[105px]">
+                                    <span class="font-bold text-sm tracking-tight block">${slot.startTime} – ${endTime}</span>
+                                    <span class="text-[11px] text-neutral-500">${slot.duration} min ${slot.room ? `• ${slot.room}` : ''}</span>
+                                </div>
+
+                                <div class="border-l border-neutral-200 pl-4">
+                                    ${isBooked ? `
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-semibold text-sm text-black">${slot.studentName}</span>
+                                            ${isMyBooking ? '<span class="text-[10px] uppercase tracking-wider bg-black text-white px-2 py-0.5 rounded-full font-semibold">Vous</span>' : ''}
+                                        </div>
+                                        ${slot.piece ? `<p class="text-xs text-neutral-500 italic mt-0.5">${slot.piece}</p>` : ''}
+                                    ` : `
+                                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-black">
+                                            <span class="w-2 h-2 rounded-full bg-black"></span>
+                                            Créneau libre
+                                        </span>
+                                    `}
+                                </div>
+                            </div>
+
+                            <div class="self-end sm:self-center">
+                                ${actionBtn}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                daySection.innerHTML = dayHeader + `<div class="divide-y divide-neutral-100">${slotsHtml}</div>`;
+                container.appendChild(daySection);
+            });
         }
 
-        initApp();
+        function renderAuditions() {
+            const container = document.getElementById('auditions-container');
+            container.innerHTML = '';
+
+            if (appState.auditions.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full border border-dashed border-neutral-300 rounded-2xl p-8 text-center">
+                        <p class="text-sm text-neutral-500">Aucune audition enregistrée pour le moment.</p>
+                    </div>`;
+                return;
+            }
+
+            const sorted = [...appState.auditions].sort((a, b) => a.date.localeCompare(b.date));
+
+            sorted.forEach(aud => {
+                const participants = aud.participants || [];
+                const isRegistered = currentStudentName && participants.some(p => p.toLowerCase() === currentStudentName.toLowerCase());
+
+                const card = document.createElement('div');
+                card.className = 'border border-black rounded-2xl p-5 bg-white flex flex-col justify-between gap-4 shadow-2xs';
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between gap-2">
+                            <span class="text-[11px] font-bold uppercase tracking-widest bg-neutral-100 px-2.5 py-1 rounded-lg border border-neutral-200">
+                                ${formatDateFrench(aud.date)} • ${aud.time}
+                            </span>
+                            ${currentRole !== 'student' ? `
+                                <button onclick="deleteAudition('${aud.id}')" class="text-neutral-400 hover:text-black text-xs underline">Supprimer</button>
+                            ` : ''}
+                        </div>
+                        <h3 class="font-serif-title text-2xl font-semibold mt-3 leading-snug">${aud.title}</h3>
+                        <p class="text-xs font-semibold text-neutral-700 mt-1">📍 ${aud.location}</p>
+                        ${aud.notes ? `<p class="text-xs text-neutral-600 mt-3 leading-relaxed bg-neutral-50 p-3 rounded-xl border border-neutral-100">${aud.notes}</p>` : ''}
+                    </div>
+
+                    <div class="pt-3 border-t border-neutral-100 flex flex-col gap-3">
+                        <div>
+                            <p class="text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
+                                Élèves inscrits (${participants.length})
+                            </p>
+                            <div class="flex flex-wrap gap-1.5">
+                                ${participants.length > 0 
+                                    ? participants.map(p => `<span class="text-xs px-2.5 py-0.5 rounded-full border ${currentStudentName && p.toLowerCase() === currentStudentName.toLowerCase() ? 'bg-black text-white border-black font-semibold' : 'bg-white text-black border-neutral-300'}">${p}</span>`).join('')
+                                    : '<span class="text-xs text-neutral-400 italic">Aucun inscrit</span>'
+                                }
+                            </div>
+                        </div>
+
+                        ${currentRole === 'student' ? `
+                            <button onclick="toggleAuditionParticipation('${aud.id}')" class="w-full py-2.5 rounded-xl text-xs font-semibold transition ${isRegistered ? 'bg-white text-black border border-black hover:bg-neutral-100' : 'bg-black text-white hover:bg-neutral-800'}">
+                                ${isRegistered ? 'Se désinscrire de l\'audition' : 'Je participe à cette audition'}
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- ACTIONS & OPÉRATIONS FIRESTORE ---
+
+        window.openModal = (id) => {
+            const el = document.getElementById(id);
+            el.classList.remove('hidden');
+            el.classList.add('flex');
+        };
+
+        window.closeModal = (id) => {
+            const el = document.getElementById(id);
+            el.classList.add('hidden');
+            el.classList.remove('flex');
+        };
+
+        window.openBreakModal = (targetType) => {
+            document.getElementById('break-target-type').value = targetType;
+            document.getElementById('break-modal-title').textContent = 
+                targetType === 'violin' ? 'Ajouter une pause (Félix)' : 'Ajouter une pause (Stéphanie)';
+            openModal('modal-break');
+        };
+
+        window.handleCreateBreak = async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const targetType = document.getElementById('break-target-type').value;
+            const date = document.getElementById('break-date').value;
+            const startTime = document.getElementById('break-start').value;
+            const duration = parseInt(document.getElementById('break-duration').value, 10);
+            const breakLabel = document.getElementById('break-label').value.trim() || 'Pause';
+
+            const colName = targetType === 'violin' ? 'violinSlots' : 'pianoSlots';
+
+            try {
+                await addDoc(getCollectionRef(colName), {
+                    date,
+                    startTime,
+                    duration,
+                    isBreak: true,
+                    breakLabel,
+                    room: '',
+                    studentName: null,
+                    piece: ''
+                });
+                closeModal('modal-break');
+                showToast('Pause ajoutée au planning.');
+            } catch (err) {
+                console.error(err);
+                showToast('Erreur lors de l\'ajout de la pause.');
+            }
+        };
+
+        window.handleCreateBatchViolin = async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const date = document.getElementById('batch-v-date').value;
+            const startStr = document.getElementById('batch-v-start').value;
+            const endStr = document.getElementById('batch-v-end').value;
+            const duration = parseInt(document.getElementById('batch-v-duration').value, 10);
+            const breakTime = parseInt(document.getElementById('batch-v-break').value, 10);
+            const room = document.getElementById('batch-v-room').value.trim();
+
+            let currentMins = timeToMinutes(startStr);
+            const endMins = timeToMinutes(endStr);
+            let count = 0;
+
+            try {
+                const promises = [];
+                while (currentMins + duration <= endMins) {
+                    const h = Math.floor(currentMins / 60);
+                    const m = currentMins % 60;
+                    const formattedStart = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+
+                    promises.push(addDoc(getCollectionRef('violinSlots'), {
+                        date,
+                        startTime: formattedStart,
+                        duration,
+                        room,
+                        isBreak: false,
+                        studentName: null,
+                        piece: ''
+                    }));
+
+                    currentMins += duration + breakTime;
+                    count++;
+                }
+                await Promise.all(promises);
+                closeModal('modal-batch-violin');
+                showToast(`${count} créneau(x) de violon généré(s).`);
+            } catch (err) {
+                console.error(err);
+                showToast('Erreur lors de la génération.');
+            }
+        };
+
+        window.handleCreateSingleViolin = async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const date = document.getElementById('single-v-date').value;
+            const startTime = document.getElementById('single-v-start').value;
+            const duration = parseInt(document.getElementById('single-v-duration').value, 10);
+            const studentName = document.getElementById('single-v-student').value.trim() || null;
+            const room = document.getElementById('single-v-room').value.trim();
+
+            try {
+                await addDoc(getCollectionRef('violinSlots'), {
+                    date,
+                    startTime,
+                    duration,
+                    room,
+                    isBreak: false,
+                    studentName,
+                    piece: ''
+                });
+                document.getElementById('single-v-student').value = '';
+                closeModal('modal-single-violin');
+                showToast('Créneau personnalisé ajouté.');
+            } catch (err) {
+                console.error(err);
+                showToast('Erreur lors de l\'ajout.');
+            }
+        };
+
+        window.handleCreateBatchPiano = async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const date = document.getElementById('batch-p-date').value;
+            const startStr = document.getElementById('batch-p-start').value;
+            const endStr = document.getElementById('batch-p-end').value;
+            const duration = parseInt(document.getElementById('batch-p-duration').value, 10);
+            const room = document.getElementById('batch-p-room').value.trim();
+
+            let currentMins = timeToMinutes(startStr);
+            const endMins = timeToMinutes(endStr);
+            let count = 0;
+
+            try {
+                const promises = [];
+                while (currentMins + duration <= endMins) {
+                    const h = Math.floor(currentMins / 60);
+                    const m = currentMins % 60;
+                    const formattedStart = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+
+                    promises.push(addDoc(getCollectionRef('pianoSlots'), {
+                        date,
+                        startTime: formattedStart,
+                        duration,
+                        room,
+                        isBreak: false,
+                        studentName: null,
+                        piece: ''
+                    }));
+
+                    currentMins += duration;
+                    count++;
+                }
+                await Promise.all(promises);
+                closeModal('modal-batch-piano');
+                showToast(`${count} disponibilité(s) piano ajoutée(s).`);
+            } catch (err) {
+                console.error(err);
+                showToast('Erreur lors de la publication.');
+            }
+        };
+
+        window.handleCreateAudition = async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const title = document.getElementById('aud-title').value.trim();
+            const date = document.getElementById('aud-date').value;
+            const time = document.getElementById('aud-time').value;
+            const location = document.getElementById('aud-location').value.trim();
+            const notes = document.getElementById('aud-notes').value.trim();
+
+            try {
+                await addDoc(getCollectionRef('auditions'), {
+                    title,
+                    date,
+                    time,
+                    location,
+                    notes,
+                    participants: []
+                });
+                e.target.reset();
+                closeModal('modal-audition');
+                showToast('Audition ajoutée au calendrier.');
+            } catch (err) {
+                console.error(err);
+                showToast('Erreur lors de l\'ajout de l\'audition.');
+            }
+        };
+
+        window.openBookingModal = (type, slotId) => {
+            const list = type === 'violin' ? appState.violinSlots : appState.pianoSlots;
+            const slot = list.find(s => s.id === slotId);
+            if (!slot) return;
+
+            document.getElementById('book-slot-id').value = slotId;
+            document.getElementById('book-slot-type').value = type;
+            document.getElementById('book-student-name').value = currentStudentName;
+            document.getElementById('book-piece').value = '';
+            document.getElementById('book-slot-summary').textContent = 
+                `${type === 'violin' ? 'Cours avec Félix' : 'Répétition avec Stéphanie'} • ${formatDateFrench(slot.date)} à ${slot.startTime} (${slot.duration} min)`;
+
+            openModal('modal-book-slot');
+        };
+
+        window.confirmBooking = async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const slotId = document.getElementById('book-slot-id').value;
+            const type = document.getElementById('book-slot-type').value;
+            const name = document.getElementById('book-student-name').value.trim();
+            const piece = document.getElementById('book-piece').value.trim();
+
+            if (!name) return;
+            document.getElementById('student-name-input').value = name;
+            updateStudentName(name);
+
+            const colName = type === 'violin' ? 'violinSlots' : 'pianoSlots';
+
+            try {
+                await updateDoc(getDocRef(colName, slotId), {
+                    studentName: name,
+                    piece: piece
+                });
+                closeModal('modal-book-slot');
+                showToast('Votre créneau est réservé.');
+            } catch (err) {
+                console.error(err);
+                showToast('Erreur lors de la réservation.');
+            }
+        };
+
+        window.cancelBooking = async (type, slotId) => {
+            if (!currentUser) return;
+            const colName = type === 'violin' ? 'violinSlots' : 'pianoSlots';
+
+            try {
+                await updateDoc(getDocRef(colName, slotId), {
+                    studentName: null,
+                    piece: ''
+                });
+                showToast('Créneau libéré.');
+            } catch (err) {
+                console.error(err);
+                showToast('Erreur lors de l\'annulation.');
+            }
+        };
+
+        window.deleteSlot = async (type, slotId) => {
+            if (!currentUser) return;
+            const colName = type === 'violin' ? 'violinSlots' : 'pianoSlots';
+
+            try {
+                await deleteDoc(getDocRef(colName, slotId));
+                showToast('Élément supprimé.');
+            } catch (err) {
+                console.error(err);
+                showToast('Erreur lors de la suppression.');
+            }
+        };
+
+        window.deleteAudition = async (audId) => {
+            if (!currentUser) return;
+            try {
+                await deleteDoc(getDocRef('auditions', audId));
+                showToast('Audition supprimée.');
+            } catch (err) {
+                console.error(err);
+                showToast('Erreur lors de la suppression.');
+            }
+        };
+
+        window.toggleAuditionParticipation = async (audId) => {
+            if (!currentUser) return;
+            if (!currentStudentName) {
+                showToast('Veuillez indiquer votre nom en haut de la page avant de vous inscrire.');
+                document.getElementById('student-name-input').focus();
+                return;
+            }
+
+            const aud = appState.auditions.find(a => a.id === audId);
+            if (!aud) return;
+
+            const updatedParticipants = [...(aud.participants || [])];
+            const idx = updatedParticipants.findIndex(p => p.toLowerCase() === currentStudentName.toLowerCase());
+
+            if (idx > -1) {
+                updatedParticipants.splice(idx, 1);
+            } else {
+                updatedParticipants.push(currentStudentName);
+            }
+
+            try {
+                await updateDoc(getDocRef('auditions', audId), {
+                    participants: updatedParticipants
+                });
+                showToast(idx > -1 ? 'Désinscription enregistrée.' : 'Inscription à l\'audition confirmée.');
+            } catch (err) {
+                console.error(err);
+                showToast('Erreur lors de la mise à jour.');
+            }
+        };
     </script>
 </body>
 </html>
