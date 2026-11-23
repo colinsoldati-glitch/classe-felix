@@ -4,23 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Classe de Violon • Félix Froschhammer</title>
-    <meta name="theme-color" content="#1e1b18">
+    <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="Classe Félix">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts: Cormorant Garamond (Titres classiques) & Plus Jakarta Sans (Interface claire) -->
+    <!-- Google Fonts: Inter (Minimalisme suisse) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-    <!-- Manifeste PWA injecté dynamiquement -->
+    <!-- Manifeste PWA -->
     <link rel="manifest" id="pwa-manifest">
 
     <script>
@@ -28,26 +28,7 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                        serif: ['"Cormorant Garamond"', 'serif'],
-                    },
-                    colors: {
-                        wood: {
-                            50: '#fbf8f6',
-                            100: '#f5efe9',
-                            200: '#e8dcd0',
-                            300: '#d5bfa9',
-                            500: '#a67c52',
-                            700: '#78502d',
-                            800: '#5c3b1e',
-                            900: '#2c1e14',
-                            950: '#1a120b',
-                        },
-                        gold: {
-                            400: '#e5b963',
-                            500: '#d4a243',
-                            600: '#b88428',
-                        }
+                        sans: ['"Inter"', 'sans-serif'],
                     }
                 }
             }
@@ -56,255 +37,209 @@
 
     <style>
         body {
-            background-color: #fbf8f6;
-            color: #2c1e14;
+            background-color: #ffffff;
+            color: #0a0a0a;
             -webkit-tap-highlight-color: transparent;
         }
-        /* Masquer la barre de défilement tout en gardant le scroll fluide */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        .glass-header {
-            background: rgba(26, 18, 11, 0.94);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
+            from { opacity: 0; transform: translateY(4px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in {
-            animation: fadeIn 0.25s ease-out forwards;
+            animation: fadeIn 0.2s ease-out forwards;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col pb-24 md:pb-12">
+<body class="min-h-screen flex flex-col pb-24 md:pb-12 bg-white text-black antialiased">
 
-    <!-- EN-TÊTE PRINCIPAL -->
-    <header class="glass-header text-wood-50 sticky top-0 z-40 shadow-lg border-b border-wood-800/60">
-        <div class="max-w-4xl mx-auto px-4 py-3.5 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-gold-400 to-wood-700 flex items-center justify-center text-wood-950 shadow-inner">
-                    <i class="ph-fill ph-music-notes text-2xl"></i>
-                </div>
-                <div>
-                    <h1 class="font-serif text-xl sm:text-2xl font-bold tracking-wide leading-none text-white">
-                        Classe de Violon
-                    </h1>
-                    <p class="text-xs text-wood-300 font-medium tracking-wider uppercase mt-0.5">
-                        Félix Froschhammer
-                    </p>
-                </div>
+    <!-- EN-TÊTE MINIMALISTE NOIR & BLANC -->
+    <header class="bg-black text-white sticky top-0 z-40 border-b border-neutral-800">
+        <div class="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div>
+                <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white">
+                    Classe de Violon
+                </h1>
+                <p class="text-xs text-neutral-400 font-medium tracking-wide">
+                    Félix Froschhammer
+                </p>
             </div>
 
-            <!-- Bouton Profil Actif -->
-            <button onclick="openProfileModal()" id="profile-btn" class="flex items-center gap-2 bg-wood-900/90 hover:bg-wood-800 border border-wood-700/80 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition active:scale-95">
-                <span id="profile-badge-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                <span id="profile-name-display" class="truncate max-w-[110px] sm:max-w-[160px]">Connexion...</span>
-                <i class="ph ph-caret-down text-wood-300"></i>
-            </button>
+            <div class="flex items-center gap-2">
+                <!-- Indicateur statut serveur -->
+                <span id="db-status-dot" title="Statut de synchronisation" class="w-2 h-2 rounded-full bg-neutral-500"></span>
+
+                <!-- Bouton Profil Actif -->
+                <button onclick="openProfileModal()" id="profile-btn" class="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition">
+                    <span id="profile-name-display" class="truncate max-w-[120px] sm:max-w-[180px]">Choisir profil</span>
+                    <i class="ph ph-caret-down text-neutral-400"></i>
+                </button>
+            </div>
         </div>
 
-        <!-- NAVIGATION DESKTOP (Onglets intégrés) -->
-        <nav class="hidden md:flex max-w-4xl mx-auto px-4 border-t border-wood-800/50 gap-2 pt-2">
-            <button onclick="switchTab('felix')" data-tab="felix" class="tab-btn flex items-center gap-2 px-5 py-2.5 rounded-t-xl text-sm font-semibold transition border-b-2 border-gold-400 text-gold-400 bg-wood-900/60">
-                <i class="ph-duotone ph-violin text-lg"></i>
+        <!-- NAVIGATION DESKTOP -->
+        <nav class="hidden md:flex max-w-3xl mx-auto px-4 gap-6 border-t border-neutral-900">
+            <button onclick="switchTab('felix')" data-tab="felix" class="tab-btn py-3 text-xs uppercase tracking-wider font-semibold border-b-2 border-white text-white transition">
                 Cours Félix
             </button>
-            <button onclick="switchTab('stephanie')" data-tab="stephanie" class="tab-btn flex items-center gap-2 px-5 py-2.5 rounded-t-xl text-sm font-semibold transition border-b-2 border-transparent text-wood-300 hover:text-white">
-                <i class="ph-duotone ph-piano-keys text-lg"></i>
+            <button onclick="switchTab('stephanie')" data-tab="stephanie" class="tab-btn py-3 text-xs uppercase tracking-wider font-semibold border-b-2 border-transparent text-neutral-400 hover:text-white transition">
                 Piano • Stéphanie Gurga
             </button>
-            <button onclick="switchTab('auditions')" data-tab="auditions" class="tab-btn flex items-center gap-2 px-5 py-2.5 rounded-t-xl text-sm font-semibold transition border-b-2 border-transparent text-wood-300 hover:text-white">
-                <i class="ph-duotone ph-calendar-star text-lg"></i>
-                Auditions & Concerts
+            <button onclick="switchTab('auditions')" data-tab="auditions" class="tab-btn py-3 text-xs uppercase tracking-wider font-semibold border-b-2 border-transparent text-neutral-400 hover:text-white transition">
+                Auditions
             </button>
         </nav>
     </header>
 
-    <!-- BANNIÈRE D'INSTALLATION PWA (Si applicable) -->
-    <div id="pwa-banner" class="hidden bg-wood-200/80 border-b border-wood-300 px-4 py-2.5 text-xs text-wood-900">
-        <div class="max-w-4xl mx-auto flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2">
-                <i class="ph-fill ph-device-mobile text-wood-700 text-base"></i>
-                <span>Installez l'application sur votre écran d'accueil pour un accès rapide.</span>
+    <!-- ALERTE ERREUR CONNEXION FIREBASE (Visible uniquement si blocage règles RTDB) -->
+    <div id="firebase-error-banner" class="hidden bg-neutral-950 text-white border-b border-neutral-800 px-4 py-3 text-xs">
+        <div class="max-w-3xl mx-auto flex items-start justify-between gap-3">
+            <div>
+                <p class="font-bold">Connexion à la base de données bloquée</p>
+                <p id="firebase-error-detail" class="text-neutral-300 mt-0.5">Vérifiez dans votre console Firebase &gt; Realtime Database &gt; Règles que <code>".read": true</code> et <code>".write": true</code> sont activés.</p>
             </div>
-            <button onclick="dismissPwaBanner()" class="text-wood-700 hover:text-wood-950 font-bold px-2 py-1">OK</button>
+            <button onclick="location.reload()" class="shrink-0 bg-white text-black px-3 py-1.5 rounded font-semibold">Réessayer</button>
         </div>
     </div>
 
     <!-- CONTENU PRINCIPAL -->
-    <main class="flex-1 max-w-4xl w-full mx-auto px-4 pt-5 pb-8">
+    <main class="flex-1 max-w-3xl w-full mx-auto px-4 pt-6 pb-8">
 
         <!-- ÉTAT DE CHARGEMENT -->
-        <div id="loading-state" class="flex flex-col items-center justify-center py-20 text-wood-700">
-            <div class="w-10 h-10 border-4 border-wood-300 border-t-wood-800 rounded-full animate-spin mb-3"></div>
-            <p class="text-sm font-medium">Synchronisation avec l'agenda de la classe...</p>
+        <div id="loading-state" class="flex flex-col items-center justify-center py-20 text-neutral-600">
+            <div class="w-6 h-6 border-2 border-neutral-300 border-t-black rounded-full animate-spin mb-3"></div>
+            <p class="text-xs uppercase tracking-widest font-medium">Chargement de l'agenda...</p>
         </div>
 
         <!-- ==================== ONGLET 1 : COURS FÉLIX ==================== -->
-        <section id="view-felix" class="hidden space-y-5 animate-fade-in">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-wood-200/80">
+        <section id="view-felix" class="hidden space-y-6 animate-fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-200">
                 <div>
-                    <div class="flex items-center gap-2">
-                        <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-wood-100 text-wood-800">Professeur</span>
-                        <h2 class="font-serif text-2xl font-bold text-wood-950">Cours avec Félix Froschhammer</h2>
-                    </div>
-                    <p class="text-sm text-wood-600 mt-1">Choisissez un créneau disponible pour votre cours individuel.</p>
+                    <h2 class="text-xl font-bold tracking-tight text-black">Cours avec Félix Froschhammer</h2>
+                    <p class="text-xs text-neutral-500 mt-1">Sélectionnez un créneau libre pour réserver votre cours.</p>
                 </div>
                 
-                <!-- Bouton réservé à Félix -->
-                <button id="btn-add-felix" onclick="openSlotModal('felix')" class="hidden sm:inline-flex items-center justify-center gap-2 bg-wood-900 hover:bg-wood-800 text-white px-4 py-3 rounded-xl text-sm font-semibold shadow-md transition active:scale-95">
+                <button id="btn-add-felix" onclick="openSlotModal('felix')" class="hidden sm:inline-flex items-center justify-center gap-2 bg-black hover:bg-neutral-800 text-white px-4 py-2.5 rounded-lg text-xs font-semibold transition">
                     <i class="ph-bold ph-plus"></i>
                     Proposer un créneau
                 </button>
             </div>
 
-            <!-- Bouton flottant mobile pour Félix -->
-            <button id="btn-add-felix-mobile" onclick="openSlotModal('felix')" class="hidden w-full flex items-center justify-center gap-2 bg-wood-900 hover:bg-wood-800 text-white px-4 py-3.5 rounded-2xl text-sm font-semibold shadow-md transition active:scale-95">
-                <i class="ph-bold ph-plus text-lg"></i>
+            <button id="btn-add-felix-mobile" onclick="openSlotModal('felix')" class="hidden w-full flex items-center justify-center gap-2 bg-black hover:bg-neutral-800 text-white px-4 py-3 rounded-lg text-xs font-semibold transition">
+                <i class="ph-bold ph-plus"></i>
                 Ajouter des créneaux de cours
             </button>
 
-            <!-- Liste des créneaux de Félix -->
             <div id="felix-slots-container" class="space-y-6"></div>
         </section>
 
         <!-- ==================== ONGLET 2 : PIANO STÉPHANIE ==================== -->
-        <section id="view-stephanie" class="hidden space-y-5 animate-fade-in">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-wood-200/80">
+        <section id="view-stephanie" class="hidden space-y-6 animate-fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-200">
                 <div>
-                    <div class="flex items-center gap-2">
-                        <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-900">Accompagnement Piano</span>
-                        <h2 class="font-serif text-2xl font-bold text-wood-950">Répétitions • Stéphanie Gurga</h2>
-                    </div>
-                    <p class="text-sm text-wood-600 mt-1">Inscrivez-vous sur les disponibilités de Stéphanie et indiquez vos œuvres.</p>
+                    <h2 class="text-xl font-bold tracking-tight text-black">Piano • Stéphanie Gurga</h2>
+                    <p class="text-xs text-neutral-500 mt-1">Inscrivez-vous sur les créneaux d'accompagnement.</p>
                 </div>
 
-                <!-- Bouton réservé à Stéphanie (ou Félix) -->
-                <button id="btn-add-stephanie" onclick="openSlotModal('stephanie')" class="hidden sm:inline-flex items-center justify-center gap-2 bg-amber-800 hover:bg-amber-900 text-white px-4 py-3 rounded-xl text-sm font-semibold shadow-md transition active:scale-95">
+                <button id="btn-add-stephanie" onclick="openSlotModal('stephanie')" class="hidden sm:inline-flex items-center justify-center gap-2 bg-black hover:bg-neutral-800 text-white px-4 py-2.5 rounded-lg text-xs font-semibold transition">
                     <i class="ph-bold ph-plus"></i>
                     Ajouter disponibilité
                 </button>
             </div>
 
-            <!-- Bouton mobile pour Stéphanie -->
-            <button id="btn-add-stephanie-mobile" onclick="openSlotModal('stephanie')" class="hidden w-full flex items-center justify-center gap-2 bg-amber-800 hover:bg-amber-900 text-white px-4 py-3.5 rounded-2xl text-sm font-semibold shadow-md transition active:scale-95">
-                <i class="ph-bold ph-plus text-lg"></i>
+            <button id="btn-add-stephanie-mobile" onclick="openSlotModal('stephanie')" class="hidden w-full flex items-center justify-center gap-2 bg-black hover:bg-neutral-800 text-white px-4 py-3 rounded-lg text-xs font-semibold transition">
+                <i class="ph-bold ph-plus"></i>
                 Proposer un créneau piano
             </button>
 
-            <!-- Liste des créneaux de Stéphanie -->
             <div id="stephanie-slots-container" class="space-y-6"></div>
         </section>
 
         <!-- ==================== ONGLET 3 : AUDITIONS ==================== -->
-        <section id="view-auditions" class="hidden space-y-5 animate-fade-in">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-wood-200/80">
+        <section id="view-auditions" class="hidden space-y-6 animate-fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-200">
                 <div>
-                    <div class="flex items-center gap-2">
-                        <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-900">Événements</span>
-                        <h2 class="font-serif text-2xl font-bold text-wood-950">Auditions & Concerts de Classe</h2>
-                    </div>
-                    <p class="text-sm text-wood-600 mt-1">Dates importantes, lieux et horaires des auditions de la classe.</p>
+                    <h2 class="text-xl font-bold tracking-tight text-black">Auditions & Concerts</h2>
+                    <p class="text-xs text-neutral-500 mt-1">Dates et lieux des auditions de la classe.</p>
                 </div>
 
-                <!-- Bouton réservé à Félix ou Stéphanie -->
-                <button id="btn-add-audition" onclick="openAuditionModal()" class="hidden sm:inline-flex items-center justify-center gap-2 bg-wood-900 hover:bg-wood-800 text-white px-4 py-3 rounded-xl text-sm font-semibold shadow-md transition active:scale-95">
-                    <i class="ph-bold ph-calendar-plus"></i>
+                <button id="btn-add-audition" onclick="openAuditionModal()" class="hidden sm:inline-flex items-center justify-center gap-2 bg-black hover:bg-neutral-800 text-white px-4 py-2.5 rounded-lg text-xs font-semibold transition">
+                    <i class="ph-bold ph-plus"></i>
                     Nouvelle audition
                 </button>
             </div>
 
-            <button id="btn-add-audition-mobile" onclick="openAuditionModal()" class="hidden w-full flex items-center justify-center gap-2 bg-wood-900 hover:bg-wood-800 text-white px-4 py-3.5 rounded-2xl text-sm font-semibold shadow-md transition active:scale-95">
-                <i class="ph-bold ph-calendar-plus text-lg"></i>
+            <button id="btn-add-audition-mobile" onclick="openAuditionModal()" class="hidden w-full flex items-center justify-center gap-2 bg-black hover:bg-neutral-800 text-white px-4 py-3 rounded-lg text-xs font-semibold transition">
+                <i class="ph-bold ph-plus"></i>
                 Ajouter une date d'audition
             </button>
 
-            <!-- Liste des auditions -->
             <div id="auditions-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </section>
 
     </main>
 
-    <!-- BARRE DE NAVIGATION MOBILE (Fixée en bas) -->
-    <nav class="md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-wood-200 z-40 px-2 py-1.5 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+    <!-- BARRE DE NAVIGATION MOBILE -->
+    <nav class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-neutral-200 z-40 px-2 py-1.5">
         <div class="grid grid-cols-3 gap-1">
-            <button onclick="switchTab('felix')" data-tab="felix" class="mobile-tab-btn flex flex-col items-center justify-center py-2 rounded-xl text-wood-950 bg-wood-100 font-semibold transition">
-                <i class="ph-fill ph-music-note text-xl mb-0.5"></i>
+            <button onclick="switchTab('felix')" data-tab="felix" class="mobile-tab-btn flex flex-col items-center justify-center py-2 rounded-lg text-white bg-black font-semibold transition">
+                <i class="ph ph-music-note text-lg mb-0.5"></i>
                 <span class="text-[11px]">Cours Félix</span>
             </button>
-            <button onclick="switchTab('stephanie')" data-tab="stephanie" class="mobile-tab-btn flex flex-col items-center justify-center py-2 rounded-xl text-wood-500 font-medium transition">
-                <i class="ph ph-piano-keys text-xl mb-0.5"></i>
-                <span class="text-[11px]">Piano Stéphanie</span>
+            <button onclick="switchTab('stephanie')" data-tab="stephanie" class="mobile-tab-btn flex flex-col items-center justify-center py-2 rounded-lg text-neutral-500 font-medium transition">
+                <i class="ph ph-piano-keys text-lg mb-0.5"></i>
+                <span class="text-[11px]">Piano</span>
             </button>
-            <button onclick="switchTab('auditions')" data-tab="auditions" class="mobile-tab-btn flex flex-col items-center justify-center py-2 rounded-xl text-wood-500 font-medium transition">
-                <i class="ph ph-calendar-star text-xl mb-0.5"></i>
+            <button onclick="switchTab('auditions')" data-tab="auditions" class="mobile-tab-btn flex flex-col items-center justify-center py-2 rounded-lg text-neutral-500 font-medium transition">
+                <i class="ph ph-calendar text-lg mb-0.5"></i>
                 <span class="text-[11px]">Auditions</span>
             </button>
         </div>
     </nav>
 
     <!-- ==================== MODALE 1 : CHOIX DU PROFIL ==================== -->
-    <div id="modal-profile" class="fixed inset-0 bg-wood-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-wood-200 animate-fade-in">
-            <div class="text-center mb-5">
-                <div class="w-12 h-12 rounded-2xl bg-wood-100 text-wood-800 flex items-center justify-center mx-auto mb-3">
-                    <i class="ph-duotone ph-user-circle text-3xl"></i>
-                </div>
-                <h3 class="font-serif text-2xl font-bold text-wood-950">Qui êtes-vous ?</h3>
-                <p class="text-sm text-wood-600 mt-1">Sélectionnez votre rôle pour personnaliser l'agenda.</p>
+    <div id="modal-profile" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 border border-neutral-200 shadow-2xl animate-fade-in">
+            <div class="mb-5">
+                <h3 class="text-lg font-bold text-black">Identification</h3>
+                <p class="text-xs text-neutral-500 mt-1">Choisissez votre rôle pour accéder à l'agenda.</p>
             </div>
 
             <div class="space-y-4">
-                <!-- Choix du rôle -->
                 <div class="grid grid-cols-3 gap-2">
-                    <button type="button" onclick="selectRoleOption('student')" id="role-opt-student" class="role-opt p-3 rounded-2xl border-2 border-wood-800 bg-wood-50 flex flex-col items-center text-center transition">
-                        <i class="ph-duotone ph-student text-2xl text-wood-800 mb-1"></i>
-                        <span class="text-xs font-bold text-wood-950">Élève</span>
+                    <button type="button" onclick="selectRoleOption('student')" id="role-opt-student" class="role-opt p-3 rounded-lg border border-black bg-black text-white flex flex-col items-center text-center transition">
+                        <span class="text-xs font-semibold">Élève</span>
                     </button>
-                    <button type="button" onclick="selectRoleOption('felix')" id="role-opt-felix" class="role-opt p-3 rounded-2xl border-2 border-wood-200 hover:border-wood-400 flex flex-col items-center text-center transition">
-                        <i class="ph-duotone ph-chalkboard-teacher text-2xl text-wood-800 mb-1"></i>
-                        <span class="text-xs font-bold text-wood-950">Félix</span>
+                    <button type="button" onclick="selectRoleOption('felix')" id="role-opt-felix" class="role-opt p-3 rounded-lg border border-neutral-300 bg-white text-black hover:border-black flex flex-col items-center text-center transition">
+                        <span class="text-xs font-semibold">Félix</span>
                     </button>
-                    <button type="button" onclick="selectRoleOption('stephanie')" id="role-opt-stephanie" class="role-opt p-3 rounded-2xl border-2 border-wood-200 hover:border-wood-400 flex flex-col items-center text-center transition">
-                        <i class="ph-duotone ph-piano-keys text-2xl text-amber-800 mb-1"></i>
-                        <span class="text-xs font-bold text-wood-950">Stéphanie</span>
+                    <button type="button" onclick="selectRoleOption('stephanie')" id="role-opt-stephanie" class="role-opt p-3 rounded-lg border border-neutral-300 bg-white text-black hover:border-black flex flex-col items-center text-center transition">
+                        <span class="text-xs font-semibold">Stéphanie</span>
                     </button>
                 </div>
 
-                <!-- Champ Prénom/Nom (visible pour les élèves) -->
                 <div id="student-name-wrapper">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-wood-700 mb-1.5">Votre Prénom et Nom</label>
-                    <input type="text" id="input-user-name" placeholder="Ex: Claire Dubois" class="w-full px-4 py-3 rounded-xl border border-wood-300 focus:outline-none focus:ring-2 focus:ring-wood-700 text-sm bg-wood-50/50">
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1.5">Prénom et Nom</label>
+                    <input type="text" id="input-user-name" placeholder="Ex: Claire Dubois" class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
                 </div>
 
-                <!-- Code d'accès rapide optionnel pour Prof/Accompagnatrice -->
-                <div id="staff-info-box" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900">
-                    <p class="font-semibold flex items-center gap-1.5">
-                        <i class="ph-fill ph-sparkle"></i> Mode Gestion activé
-                    </p>
-                    <p class="mt-0.5 text-amber-800">Vous pourrez ajouter, modifier ou supprimer vos créneaux et les dates d'auditions.</p>
+                <div id="staff-info-box" class="hidden bg-neutral-100 border border-neutral-200 rounded-lg p-3 text-xs text-neutral-700">
+                    Vous pourrez publier vos créneaux et gérer les dates d'auditions.
                 </div>
 
-                <button onclick="saveProfile()" class="w-full bg-wood-900 hover:bg-wood-800 text-white font-semibold py-3.5 rounded-xl shadow-md transition active:scale-95">
-                    Continuer vers l'agenda
+                <button onclick="saveProfile()" class="w-full bg-black hover:bg-neutral-800 text-white font-semibold py-3 rounded-lg text-xs uppercase tracking-wider transition">
+                    Continuer
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- ==================== MODALE 2 : AJOUTER UN CRÉNEAU (FÉLIX / STÉPHANIE) ==================== -->
-    <div id="modal-slot" class="fixed inset-0 bg-wood-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-wood-200 animate-fade-in">
+    <!-- ==================== MODALE 2 : AJOUTER UN CRÉNEAU ==================== -->
+    <div id="modal-slot" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 border border-neutral-200 shadow-2xl animate-fade-in">
             <div class="flex items-center justify-between mb-4">
-                <h3 id="modal-slot-title" class="font-serif text-2xl font-bold text-wood-950">Ajouter un créneau</h3>
-                <button onclick="closeModal('modal-slot')" class="p-2 rounded-full hover:bg-wood-100 text-wood-600">
-                    <i class="ph-bold ph-x text-lg"></i>
+                <h3 id="modal-slot-title" class="text-lg font-bold text-black">Ajouter un créneau</h3>
+                <button onclick="closeModal('modal-slot')" class="p-1.5 rounded-lg hover:bg-neutral-100 text-neutral-600">
+                    <i class="ph-bold ph-x"></i>
                 </button>
             </div>
 
@@ -312,155 +247,151 @@
                 <input type="hidden" id="slot-teacher-type" value="felix">
                 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-wood-700 mb-1">Date</label>
-                    <input type="date" id="slot-date" required class="w-full px-4 py-3 rounded-xl border border-wood-300 focus:outline-none focus:ring-2 focus:ring-wood-700 text-sm">
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Date</label>
+                    <input type="date" id="slot-date" required class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-wood-700 mb-1">Heure de début</label>
-                        <input type="time" id="slot-start" required value="14:00" class="w-full px-4 py-3 rounded-xl border border-wood-300 focus:outline-none focus:ring-2 focus:ring-wood-700 text-sm">
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Début</label>
+                        <input type="time" id="slot-start" required value="14:00" class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-wood-700 mb-1">Heure de fin</label>
-                        <input type="time" id="slot-end" required value="15:00" class="w-full px-4 py-3 rounded-xl border border-wood-300 focus:outline-none focus:ring-2 focus:ring-wood-700 text-sm">
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Fin</label>
+                        <input type="time" id="slot-end" required value="15:00" class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-wood-700 mb-1">Salle / Lieu (Optionnel)</label>
-                    <input type="text" id="slot-location" placeholder="Ex: Salle 12, Conservatoire / Studio" class="w-full px-4 py-3 rounded-xl border border-wood-300 focus:outline-none focus:ring-2 focus:ring-wood-700 text-sm">
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Salle / Lieu (Optionnel)</label>
+                    <input type="text" id="slot-location" placeholder="Ex: Salle 12" class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
                 </div>
 
-                <div class="bg-wood-50 p-3 rounded-xl border border-wood-200">
+                <div class="bg-neutral-50 p-3 rounded-lg border border-neutral-200">
                     <label class="flex items-center gap-2.5 cursor-pointer">
-                        <input type="checkbox" id="slot-split-check" class="w-4 h-4 rounded text-wood-800 focus:ring-wood-700">
-                        <span class="text-xs font-semibold text-wood-800">Découper automatiquement en créneaux de :</span>
+                        <input type="checkbox" id="slot-split-check" class="w-4 h-4 accent-black">
+                        <span class="text-xs font-medium text-neutral-800">Découper automatiquement en créneaux de :</span>
                     </label>
                     <div id="split-duration-box" class="hidden mt-2.5 pl-6">
-                        <select id="slot-duration" class="w-full px-3 py-2 rounded-lg border border-wood-300 text-xs bg-white">
-                            <option value="30">30 minutes par élève</option>
-                            <option value="45">45 minutes par élève</option>
-                            <option value="60" selected>1 heure par élève</option>
+                        <select id="slot-duration" class="w-full px-3 py-2 rounded-lg border border-neutral-300 text-xs bg-white">
+                            <option value="30">30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60" selected>1 heure</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="pt-2 flex gap-2">
-                    <button type="button" onclick="closeModal('modal-slot')" class="flex-1 py-3 rounded-xl border border-wood-300 text-wood-700 font-semibold text-sm hover:bg-wood-50">Annuler</button>
-                    <button type="submit" class="flex-1 py-3 rounded-xl bg-wood-900 text-white font-semibold text-sm hover:bg-wood-800 shadow-md">Publier</button>
+                    <button type="button" onclick="closeModal('modal-slot')" class="flex-1 py-2.5 rounded-lg border border-neutral-300 text-neutral-700 font-semibold text-xs">Annuler</button>
+                    <button type="submit" class="flex-1 py-2.5 rounded-lg bg-black text-white font-semibold text-xs hover:bg-neutral-800">Publier</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- ==================== MODALE 3 : RÉSERVER UN CRÉNEAU (ÉLÈVE) ==================== -->
-    <div id="modal-book" class="fixed inset-0 bg-wood-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-wood-200 animate-fade-in">
+    <!-- ==================== MODALE 3 : RÉSERVER UN CRÉNEAU ==================== -->
+    <div id="modal-book" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 border border-neutral-200 shadow-2xl animate-fade-in">
             <div class="flex items-center justify-between mb-3">
-                <h3 class="font-serif text-2xl font-bold text-wood-950">Réserver ce créneau</h3>
-                <button onclick="closeModal('modal-book')" class="p-2 rounded-full hover:bg-wood-100 text-wood-600">
-                    <i class="ph-bold ph-x text-lg"></i>
+                <h3 class="text-lg font-bold text-black">Réserver ce créneau</h3>
+                <button onclick="closeModal('modal-book')" class="p-1.5 rounded-lg hover:bg-neutral-100 text-neutral-600">
+                    <i class="ph-bold ph-x"></i>
                 </button>
             </div>
             
-            <p id="book-slot-summary" class="text-sm font-medium text-wood-700 bg-wood-100 px-3.5 py-2.5 rounded-xl mb-4"></p>
+            <p id="book-slot-summary" class="text-xs font-semibold text-black bg-neutral-100 px-3.5 py-2.5 rounded-lg mb-4 border border-neutral-200"></p>
 
             <form onsubmit="confirmBooking(event)" class="space-y-4">
                 <input type="hidden" id="book-slot-id">
                 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-wood-700 mb-1">Nom de l'élève</label>
-                    <input type="text" id="book-student-name" required class="w-full px-4 py-3 rounded-xl border border-wood-300 focus:outline-none focus:ring-2 focus:ring-wood-700 text-sm">
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Nom de l'élève</label>
+                    <input type="text" id="book-student-name" required class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-wood-700 mb-1">Programme / Œuvres travaillées</label>
-                    <input type="text" id="book-repertoire" placeholder="Ex: Concerto de Brahms (1er mvt), Caprice n°24..." class="w-full px-4 py-3 rounded-xl border border-wood-300 focus:outline-none focus:ring-2 focus:ring-wood-700 text-sm">
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Programme / Œuvres</label>
+                    <input type="text" id="book-repertoire" placeholder="Ex: Concerto de Brahms (1er mvt)" class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
                 </div>
 
                 <div class="pt-2 flex gap-2">
-                    <button type="button" onclick="closeModal('modal-book')" class="flex-1 py-3 rounded-xl border border-wood-300 text-wood-700 font-semibold text-sm">Annuler</button>
-                    <button type="submit" class="flex-1 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-sm shadow-md">Confirmer</button>
+                    <button type="button" onclick="closeModal('modal-book')" class="flex-1 py-2.5 rounded-lg border border-neutral-300 text-neutral-700 font-semibold text-xs">Annuler</button>
+                    <button type="submit" class="flex-1 py-2.5 rounded-lg bg-black hover:bg-neutral-800 text-white font-semibold text-xs">Confirmer</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- ==================== MODALE 4 : AJOUTER UNE AUDITION ==================== -->
-    <div id="modal-audition" class="fixed inset-0 bg-wood-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-wood-200 animate-fade-in">
+    <div id="modal-audition" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 border border-neutral-200 shadow-2xl animate-fade-in">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="font-serif text-2xl font-bold text-wood-950">Nouvelle Audition / Concert</h3>
-                <button onclick="closeModal('modal-audition')" class="p-2 rounded-full hover:bg-wood-100 text-wood-600">
-                    <i class="ph-bold ph-x text-lg"></i>
+                <h3 class="text-lg font-bold text-black">Nouvelle Audition</h3>
+                <button onclick="closeModal('modal-audition')" class="p-1.5 rounded-lg hover:bg-neutral-100 text-neutral-600">
+                    <i class="ph-bold ph-x"></i>
                 </button>
             </div>
 
             <form onsubmit="handleCreateAudition(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-wood-700 mb-1">Titre de l'événement</label>
-                    <input type="text" id="audition-title" required placeholder="Ex: Audition de classe - Semestre d'automne" class="w-full px-4 py-3 rounded-xl border border-wood-300 focus:outline-none focus:ring-2 focus:ring-wood-700 text-sm">
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Titre</label>
+                    <input type="text" id="audition-title" required placeholder="Ex: Audition de classe" class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-wood-700 mb-1">Date</label>
-                        <input type="date" id="audition-date" required class="w-full px-4 py-3 rounded-xl border border-wood-300 focus:outline-none focus:ring-2 focus:ring-wood-700 text-sm">
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Date</label>
+                        <input type="date" id="audition-date" required class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-wood-700 mb-1">Heure</label>
-                        <input type="time" id="audition-time" required value="18:30" class="w-full px-4 py-3 rounded-xl border border-wood-300 focus:outline-none focus:ring-2 focus:ring-wood-700 text-sm">
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Heure</label>
+                        <input type="time" id="audition-time" required value="18:30" class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-wood-700 mb-1">Lieu / Salle</label>
-                    <input type="text" id="audition-location" required placeholder="Ex: Salle Franz Liszt / Auditorium" class="w-full px-4 py-3 rounded-xl border border-wood-300 focus:outline-none focus:ring-2 focus:ring-wood-700 text-sm">
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Lieu</label>
+                    <input type="text" id="audition-location" required placeholder="Ex: Auditorium" class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-wood-700 mb-1">Notes & Informations (Répétition générale, etc.)</label>
-                    <textarea id="audition-notes" rows="3" placeholder="Ex: Raccord avec Stéphanie à partir de 16h30 dans la salle." class="w-full px-4 py-3 rounded-xl border border-wood-300 focus:outline-none focus:ring-2 focus:ring-wood-700 text-sm"></textarea>
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-600 mb-1">Informations complémentaires</label>
+                    <textarea id="audition-notes" rows="2" placeholder="Ex: Raccord piano dès 16h30" class="w-full px-3.5 py-2.5 rounded-lg border border-neutral-300 focus:outline-none focus:border-black text-sm"></textarea>
                 </div>
 
                 <div class="pt-2 flex gap-2">
-                    <button type="button" onclick="closeModal('modal-audition')" class="flex-1 py-3 rounded-xl border border-wood-300 text-wood-700 font-semibold text-sm">Annuler</button>
-                    <button type="submit" class="flex-1 py-3 rounded-xl bg-wood-900 hover:bg-wood-800 text-white font-semibold text-sm shadow-md">Enregistrer</button>
+                    <button type="button" onclick="closeModal('modal-audition')" class="flex-1 py-2.5 rounded-lg border border-neutral-300 text-neutral-700 font-semibold text-xs">Annuler</button>
+                    <button type="submit" class="flex-1 py-2.5 rounded-lg bg-black hover:bg-neutral-800 text-white font-semibold text-xs">Enregistrer</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- ==================== MODALE DE CONFIRMATION PERSONNALISÉE ==================== -->
-    <div id="modal-confirm" class="fixed inset-0 bg-wood-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-wood-200 text-center animate-fade-in">
-            <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center mx-auto mb-3">
-                <i class="ph-bold ph-warning-circle text-2xl"></i>
-            </div>
-            <h4 id="confirm-title" class="font-serif text-xl font-bold text-wood-950">Confirmer l'action</h4>
-            <p id="confirm-message" class="text-sm text-wood-600 mt-1.5 mb-5"></p>
+    <!-- ==================== MODALE DE CONFIRMATION ==================== -->
+    <div id="modal-confirm" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-sm w-full p-6 border border-neutral-200 shadow-2xl text-center animate-fade-in">
+            <h4 id="confirm-title" class="text-base font-bold text-black">Confirmer l'action</h4>
+            <p id="confirm-message" class="text-xs text-neutral-600 mt-1.5 mb-5"></p>
             <div class="flex gap-2">
-                <button onclick="closeModal('modal-confirm')" class="flex-1 py-2.5 rounded-xl border border-wood-300 text-wood-700 font-semibold text-sm">Annuler</button>
-                <button id="confirm-yes-btn" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm shadow">Confirmer</button>
+                <button onclick="closeModal('modal-confirm')" class="flex-1 py-2.5 rounded-lg border border-neutral-300 text-neutral-700 font-semibold text-xs">Annuler</button>
+                <button id="confirm-yes-btn" class="flex-1 py-2.5 rounded-lg bg-black hover:bg-neutral-800 text-white font-semibold text-xs">Confirmer</button>
             </div>
         </div>
     </div>
 
     <!-- NOTIFICATION TOAST -->
-    <div id="toast" class="fixed top-20 right-4 left-4 sm:left-auto sm:w-80 bg-wood-900 text-white px-4 py-3.5 rounded-2xl shadow-xl border border-wood-700 z-50 transform transition-all duration-300 translate-y-[-150%] opacity-0 flex items-center gap-3">
-        <i id="toast-icon" class="ph-fill ph-check-circle text-emerald-400 text-xl shrink-0"></i>
-        <p id="toast-msg" class="text-xs sm:text-sm font-medium"></p>
+    <div id="toast" class="fixed top-20 right-4 left-4 sm:left-auto sm:w-80 bg-black text-white px-4 py-3 rounded-lg shadow-xl border border-neutral-800 z-50 transform transition-all duration-300 translate-y-[-150%] opacity-0 flex items-center gap-2.5">
+        <i id="toast-icon" class="ph-bold ph-check text-white text-base shrink-0"></i>
+        <p id="toast-msg" class="text-xs font-medium"></p>
     </div>
 
     <!-- ==================== LOGIQUE JAVASCRIPT & FIREBASE ==================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getDatabase, ref, push, set, update, remove, onValue, get } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+        import { getDatabase, ref, push, update, remove, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
-        // Configuration Firebase avec l'URL explicite de votre Realtime Database
-        const userProvidedConfig = {
+        // Configuration Firebase exacte fournie par l'utilisateur
+        const firebaseConfig = {
             apiKey: "AIzaSyB6R1M0LB9a3Xv9C5nLgKv4BG7PWFL-7uc",
             authDomain: "classe-felix.firebaseapp.com",
             databaseURL: "https://classe-felix-default-rtdb.firebaseio.com",
@@ -471,113 +402,72 @@
             measurementId: "G-EVDCGV5171"
         };
 
-        const firebaseConfig = (typeof __firebase_config !== 'undefined' && __firebase_config)
-            ? { ...JSON.parse(__firebase_config), databaseURL: "https://classe-felix-default-rtdb.firebaseio.com" }
-            : userProvidedConfig;
-
-        const rawAppId = typeof __app_id !== 'undefined' ? __app_id : 'classe-felix-violon';
-        const appId = rawAppId.replace(/[.#$\[\]]/g, '_');
-
-        // Initialisation Firebase & Realtime Database
+        // Initialisation directe de Firebase et Realtime Database
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const rtdb = getDatabase(app, "https://classe-felix-default-rtdb.firebaseio.com");
+        const rtdb = getDatabase(app);
 
-        // État global de l'application
-        let currentUser = null;
+        // Références propres dans la base de données
+        const slotsDbRef = ref(rtdb, 'classe_felix/slots');
+        const auditionsDbRef = ref(rtdb, 'classe_felix/auditions');
+        const connectedRef = ref(rtdb, '.info/connected');
+
+        // Identifiant de session léger en mémoire
+        const sessionUserId = 'usr_' + Math.random().toString(36).substring(2, 10);
+
         let userProfile = {
-            role: 'student', // 'student' | 'felix' | 'stephanie'
+            role: 'student',
             name: ''
         };
         let activeTab = 'felix';
         let allSlots = [];
         let allAuditions = [];
 
-        // Références aux nœuds Realtime Database
-        const slotsDbRef = ref(rtdb, `artifacts/${appId}/public/data/slots`);
-        const auditionsDbRef = ref(rtdb, `artifacts/${appId}/public/data/auditions`);
-
-        // ==================== AUTHENTIFICATION & PROFIL ====================
-        async function initApp() {
+        // ==================== INITIALISATION ====================
+        function initApp() {
             setupPwaManifest();
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
+
+            // Surveillance directe de la connexion au serveur Firebase RTDB
+            onValue(connectedRef, (snap) => {
+                const dot = document.getElementById('db-status-dot');
+                if (snap.val() === true) {
+                    dot.className = 'w-2 h-2 rounded-full bg-white';
+                    dot.title = 'Connecté au serveur';
                 } else {
-                    await signInAnonymously(auth);
+                    dot.className = 'w-2 h-2 rounded-full bg-neutral-600';
+                    dot.title = 'Connexion en cours...';
                 }
-            } catch (error) {
-                console.warn("Authentification anonyme non activée ou indisponible, démarrage direct RTDB :", error);
-                // Permettre le fonctionnement même si l'auth anonyme n'est pas activée sur la console Firebase
-                currentUser = { uid: getOrCreateDeviceId() };
-                loadProfileAndStartListeners();
-            }
-        }
+            });
 
-        function getOrCreateDeviceId() {
-            let id = sessionStorage.getItem('classe_felix_uid');
-            if (!id) {
-                id = 'user_' + Math.random().toString(36).substring(2, 12);
-                sessionStorage.setItem('classe_felix_uid', id);
-            }
-            return id;
-        }
-
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) return;
-            currentUser = user;
-            loadProfileAndStartListeners();
-        });
-
-        async function loadProfileAndStartListeners() {
-            if (!currentUser) return;
-
-            // Charger le profil utilisateur enregistré dans Realtime Database
-            try {
-                const profileRef = ref(rtdb, `artifacts/${appId}/users/${currentUser.uid}/profile`);
-                const snap = await get(profileRef);
-                if (snap.exists()) {
-                    userProfile = snap.val();
-                    updateProfileUI();
-                } else {
-                    openProfileModal();
-                }
-            } catch (e) {
-                console.warn("Profil non trouvé, ouverture sélecteur:", e);
-                openProfileModal();
-            }
-
-            // Démarrer l'écoute temps réel des données
-            startRealtimeListeners();
-        }
-
-        // ==================== ÉCOUTE TEMPS RÉEL (REALTIME DATABASE) ====================
-        function startRealtimeListeners() {
-            // 1. Écoute des créneaux (Félix et Stéphanie)
+            // Écoute temps réel des créneaux
             onValue(slotsDbRef, (snapshot) => {
+                document.getElementById('firebase-error-banner').classList.add('hidden');
                 const val = snapshot.val();
                 allSlots = val ? Object.entries(val).map(([id, data]) => ({ id, ...data })) : [];
                 renderSlots();
                 document.getElementById('loading-state').classList.add('hidden');
                 switchTab(activeTab);
             }, (error) => {
-                console.error("Erreur lecture créneaux RTDB:", error);
+                console.error("Erreur Firebase RTDB:", error);
                 document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('firebase-error-banner').classList.remove('hidden');
+                document.getElementById('firebase-error-detail').textContent = `Erreur serveur (${error.code || error.message}). Vérifiez les règles de votre Realtime Database.`;
                 switchTab(activeTab);
-                showToast("Vérifiez les règles de lecture de la base de données.", "error");
             });
 
-            // 2. Écoute des auditions
+            // Écoute temps réel des auditions
             onValue(auditionsDbRef, (snapshot) => {
                 const val = snapshot.val();
                 allAuditions = val ? Object.entries(val).map(([id, data]) => ({ id, ...data })) : [];
                 renderAuditions();
             }, (error) => {
-                console.error("Erreur lecture auditions RTDB:", error);
+                console.error("Erreur lecture auditions:", error);
             });
+
+            // Ouvrir la sélection du profil au démarrage
+            openProfileModal();
         }
 
-        // ==================== GESTION DU PROFIL UTILISATEUR ====================
+        // ==================== GESTION DU PROFIL ====================
         let selectedRoleTemp = 'student';
 
         window.openProfileModal = function() {
@@ -590,13 +480,11 @@
         window.selectRoleOption = function(role) {
             selectedRoleTemp = role;
             document.querySelectorAll('.role-opt').forEach(btn => {
-                btn.classList.remove('border-wood-800', 'bg-wood-50');
-                btn.classList.add('border-wood-200');
+                btn.className = 'role-opt p-3 rounded-lg border border-neutral-300 bg-white text-black hover:border-black flex flex-col items-center text-center transition';
             });
             const activeBtn = document.getElementById(`role-opt-${role}`);
             if (activeBtn) {
-                activeBtn.classList.remove('border-wood-200');
-                activeBtn.classList.add('border-wood-800', 'bg-wood-50');
+                activeBtn.className = 'role-opt p-3 rounded-lg border border-black bg-black text-white flex flex-col items-center text-center transition';
             }
 
             const studentWrapper = document.getElementById('student-name-wrapper');
@@ -610,8 +498,7 @@
             }
         };
 
-        window.saveProfile = async function() {
-            if (!currentUser) return;
+        window.saveProfile = function() {
             let finalName = '';
 
             if (selectedRoleTemp === 'felix') {
@@ -621,7 +508,7 @@
             } else {
                 finalName = document.getElementById('input-user-name').value.trim();
                 if (!finalName) {
-                    showToast("Veuillez entrer votre prénom et nom.", "error");
+                    showToast("Veuillez indiquer votre prénom et nom.", "error");
                     return;
                 }
             }
@@ -629,37 +516,18 @@
             userProfile = { role: selectedRoleTemp, name: finalName };
             updateProfileUI();
             closeModal('modal-profile');
-
-            try {
-                const profileRef = ref(rtdb, `artifacts/${appId}/users/${currentUser.uid}/profile`);
-                await set(profileRef, userProfile);
-                showToast(`Bienvenue, ${finalName} !`);
-            } catch (e) {
-                console.error("Erreur sauvegarde profil:", e);
-                showToast(`Bienvenue, ${finalName} !`);
-            }
+            showToast(`Connecté : ${finalName}`);
         };
 
         function updateProfileUI() {
-            const nameDisplay = document.getElementById('profile-name-display');
-            const dot = document.getElementById('profile-badge-dot');
-            nameDisplay.textContent = userProfile.name || 'Élève';
+            document.getElementById('profile-name-display').textContent = userProfile.name || 'Élève';
 
-            if (userProfile.role === 'felix') {
-                dot.className = 'w-2.5 h-2.5 rounded-full bg-gold-400';
-            } else if (userProfile.role === 'stephanie') {
-                dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400';
-            } else {
-                dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
-            }
-
-            // Afficher/masquer les boutons d'ajout selon le rôle
             const isFelix = userProfile.role === 'felix';
             const isStephanie = userProfile.role === 'stephanie';
             const isStaff = isFelix || isStephanie;
 
             toggleStaffButtons('btn-add-felix', isFelix);
-            toggleStaffButtons('btn-add-stephanie', isStaff); // Stéphanie ou Félix peut ajouter des créneaux piano
+            toggleStaffButtons('btn-add-stephanie', isStaff);
             toggleStaffButtons('btn-add-audition', isStaff);
 
             renderSlots();
@@ -669,41 +537,31 @@
         function toggleStaffButtons(baseId, show) {
             const desktopBtn = document.getElementById(baseId);
             const mobileBtn = document.getElementById(`${baseId}-mobile`);
-            if (desktopBtn) {
-                show ? desktopBtn.classList.remove('hidden') : desktopBtn.classList.add('hidden');
-            }
-            if (mobileBtn) {
-                show ? mobileBtn.classList.remove('hidden') : mobileBtn.classList.add('hidden');
-            }
+            if (desktopBtn) show ? desktopBtn.classList.remove('hidden') : desktopBtn.classList.add('hidden');
+            if (mobileBtn) show ? mobileBtn.classList.remove('hidden') : mobileBtn.classList.add('hidden');
         }
 
-        // ==================== NAVIGATION ONGLETS ====================
+        // ==================== ONGLETS ====================
         window.switchTab = function(tabName) {
             activeTab = tabName;
             ['felix', 'stephanie', 'auditions'].forEach(t => {
                 const view = document.getElementById(`view-${t}`);
-                if (t === tabName) {
-                    view.classList.remove('hidden');
-                } else {
-                    view.classList.add('hidden');
-                }
+                t === tabName ? view.classList.remove('hidden') : view.classList.add('hidden');
             });
 
-            // Mise à jour style onglets Desktop
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 if (btn.dataset.tab === tabName) {
-                    btn.className = 'tab-btn flex items-center gap-2 px-5 py-2.5 rounded-t-xl text-sm font-semibold transition border-b-2 border-gold-400 text-gold-400 bg-wood-900/60';
+                    btn.className = 'tab-btn py-3 text-xs uppercase tracking-wider font-semibold border-b-2 border-white text-white transition';
                 } else {
-                    btn.className = 'tab-btn flex items-center gap-2 px-5 py-2.5 rounded-t-xl text-sm font-semibold transition border-b-2 border-transparent text-wood-300 hover:text-white';
+                    btn.className = 'tab-btn py-3 text-xs uppercase tracking-wider font-semibold border-b-2 border-transparent text-neutral-400 hover:text-white transition';
                 }
             });
 
-            // Mise à jour style onglets Mobile
             document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
                 if (btn.dataset.tab === tabName) {
-                    btn.className = 'mobile-tab-btn flex flex-col items-center justify-center py-2 rounded-xl text-wood-950 bg-wood-100 font-semibold transition';
+                    btn.className = 'mobile-tab-btn flex flex-col items-center justify-center py-2 rounded-lg text-white bg-black font-semibold transition';
                 } else {
-                    btn.className = 'mobile-tab-btn flex flex-col items-center justify-center py-2 rounded-xl text-wood-500 font-medium transition';
+                    btn.className = 'mobile-tab-btn flex flex-col items-center justify-center py-2 rounded-lg text-neutral-500 font-medium transition';
                 }
             });
         };
@@ -720,7 +578,6 @@
                 ? 'Proposer un cours (Félix)'
                 : 'Disponibilité Piano (Stéphanie)';
             
-            // Date par défaut : demain
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             document.getElementById('slot-date').value = tomorrow.toISOString().split('T')[0];
@@ -732,7 +589,6 @@
 
         window.handleCreateSlot = async function(e) {
             e.preventDefault();
-            if (!currentUser) return;
 
             const teacher = document.getElementById('slot-teacher-type').value;
             const date = document.getElementById('slot-date').value;
@@ -759,15 +615,15 @@
                         startTime: minutesToTime(currentMins),
                         endTime: minutesToTime(currentMins + durationMins),
                         location,
-                        bookedBy: null,
-                        bookedByUid: null,
+                        bookedBy: '',
+                        bookedByUid: '',
                         repertoire: '',
                         createdAt: Date.now()
                     });
                     currentMins += durationMins;
                 }
                 if (slotsToCreate.length === 0) {
-                    showToast("La plage horaire est trop courte pour cette durée.", "error");
+                    showToast("Plage horaire trop courte pour cette durée.", "error");
                     return;
                 }
             } else {
@@ -777,8 +633,8 @@
                     startTime: start,
                     endTime: end,
                     location,
-                    bookedBy: null,
-                    bookedByUid: null,
+                    bookedBy: '',
+                    bookedByUid: '',
                     repertoire: '',
                     createdAt: Date.now()
                 });
@@ -790,14 +646,14 @@
                 for (const slot of slotsToCreate) {
                     await push(slotsDbRef, slot);
                 }
-                showToast(`${slotsToCreate.length} créneau(x) ajouté(s) avec succès !`);
+                showToast(`${slotsToCreate.length} créneau(x) publié(s).`);
             } catch (err) {
-                console.error("Erreur ajout créneau:", err);
-                showToast("Erreur lors de l'ajout du créneau.", "error");
+                console.error("Erreur écriture RTDB:", err);
+                showToast("Erreur serveur lors de l'enregistrement.", "error");
             }
         };
 
-        // ==================== RÉSERVATION & ANNULATION ÉLÈVE ====================
+        // ==================== RÉSERVATION & ANNULATION ====================
         window.openBookModal = function(slotId) {
             const slot = allSlots.find(s => s.id === slotId);
             if (!slot) return;
@@ -814,7 +670,6 @@
 
         window.confirmBooking = async function(e) {
             e.preventDefault();
-            if (!currentUser) return;
 
             const slotId = document.getElementById('book-slot-id').value;
             const studentName = document.getElementById('book-student-name').value.trim();
@@ -825,13 +680,13 @@
             closeModal('modal-book');
 
             try {
-                const slotRef = ref(rtdb, `artifacts/${appId}/public/data/slots/${slotId}`);
+                const slotRef = ref(rtdb, `classe_felix/slots/${slotId}`);
                 await update(slotRef, {
                     bookedBy: studentName,
-                    bookedByUid: currentUser.uid,
+                    bookedByUid: sessionUserId,
                     repertoire: repertoire
                 });
-                showToast("Créneau réservé !");
+                showToast("Créneau réservé.");
             } catch (err) {
                 console.error("Erreur réservation:", err);
                 showToast("Erreur lors de la réservation.", "error");
@@ -841,13 +696,13 @@
         window.cancelBooking = function(slotId) {
             openConfirmModal(
                 "Libérer ce créneau ?",
-                "Ce créneau redeviendra disponible pour les autres élèves de la classe.",
+                "Le créneau redeviendra disponible pour toute la classe.",
                 async () => {
                     try {
-                        const slotRef = ref(rtdb, `artifacts/${appId}/public/data/slots/${slotId}`);
+                        const slotRef = ref(rtdb, `classe_felix/slots/${slotId}`);
                         await update(slotRef, {
-                            bookedBy: null,
-                            bookedByUid: null,
+                            bookedBy: '',
+                            bookedByUid: '',
                             repertoire: ''
                         });
                         showToast("Créneau libéré.");
@@ -861,10 +716,10 @@
         window.deleteSlot = function(slotId) {
             openConfirmModal(
                 "Supprimer ce créneau ?",
-                "Ce créneau sera définitivement retiré de l'agenda.",
+                "Cette action est définitive.",
                 async () => {
                     try {
-                        const slotRef = ref(rtdb, `artifacts/${appId}/public/data/slots/${slotId}`);
+                        const slotRef = ref(rtdb, `classe_felix/slots/${slotId}`);
                         await remove(slotRef);
                         showToast("Créneau supprimé.");
                     } catch (err) {
@@ -884,7 +739,6 @@
             const container = document.getElementById(containerId);
             if (!container) return;
 
-            // Filtrer et trier par date puis par heure en mémoire (Respect règle Firestore)
             const filtered = allSlots
                 .filter(s => s.teacher === teacherType)
                 .sort((a, b) => {
@@ -894,16 +748,14 @@
 
             if (filtered.length === 0) {
                 container.innerHTML = `
-                    <div class="bg-white rounded-2xl p-8 text-center border border-dashed border-wood-300">
-                        <i class="ph-duotone ph-calendar-blank text-4xl text-wood-400 mb-2"></i>
-                        <p class="text-wood-800 font-semibold">Aucun créneau proposé pour le moment</p>
-                        <p class="text-xs text-wood-500 mt-1">Les prochaines disponibilités apparaîtront ici automatiquement.</p>
+                    <div class="rounded-xl p-8 text-center border border-dashed border-neutral-300">
+                        <p class="text-sm font-medium text-neutral-800">Aucun créneau proposé</p>
+                        <p class="text-xs text-neutral-500 mt-1">Les disponibilités apparaîtront ici dès leur publication.</p>
                     </div>
                 `;
                 return;
             }
 
-            // Grouper par date
             const groupedByDate = {};
             filtered.forEach(slot => {
                 if (!groupedByDate[slot.date]) groupedByDate[slot.date] = [];
@@ -919,59 +771,57 @@
                 const slotsHtml = daySlots.map(slot => {
                     const isBooked = Boolean(slot.bookedBy);
                     const isMyBooking = isBooked && (
-                        slot.bookedByUid === currentUser?.uid ||
+                        slot.bookedByUid === sessionUserId ||
                         (userProfile.name && slot.bookedBy.toLowerCase() === userProfile.name.toLowerCase())
                     );
 
                     return `
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl border transition ${
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border transition ${
                             isBooked 
-                                ? (isMyBooking ? 'bg-emerald-50/70 border-emerald-200' : 'bg-wood-50/80 border-wood-200/80') 
-                                : 'bg-white border-wood-200 hover:border-wood-400 shadow-sm'
+                                ? 'bg-neutral-50 border-neutral-200' 
+                                : 'bg-white border-neutral-300 hover:border-black'
                         }">
                             <div class="flex items-start sm:items-center gap-3.5">
-                                <!-- Badge Horaire -->
-                                <div class="px-3 py-2 rounded-xl font-bold text-sm shrink-0 text-center ${
-                                    isBooked ? 'bg-wood-200/70 text-wood-800' : 'bg-wood-900 text-white'
+                                <div class="px-3 py-2 rounded-lg font-bold text-xs shrink-0 text-center ${
+                                    isBooked ? 'bg-neutral-200 text-neutral-700' : 'bg-black text-white'
                                 }">
                                     <div>${slot.startTime}</div>
-                                    <div class="text-[11px] font-normal opacity-80">${slot.endTime}</div>
+                                    <div class="text-[11px] font-normal opacity-75">${slot.endTime}</div>
                                 </div>
 
                                 <div>
                                     ${isBooked ? `
                                         <div class="flex items-center gap-2 flex-wrap">
-                                            <span class="font-bold text-wood-950 text-sm sm:text-base">${escapeHtml(slot.bookedBy)}</span>
-                                            ${isMyBooking ? '<span class="text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-emerald-200 text-emerald-900">Mon créneau</span>' : ''}
+                                            <span class="font-bold text-black text-sm">${escapeHtml(slot.bookedBy)}</span>
+                                            ${isMyBooking ? '<span class="text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded bg-black text-white">Vous</span>' : ''}
                                         </div>
-                                        ${slot.repertoire ? `<p class="text-xs text-wood-700 mt-0.5 flex items-center gap-1"><i class="ph-fill ph-music-note-simple text-wood-500"></i> ${escapeHtml(slot.repertoire)}</p>` : ''}
+                                        ${slot.repertoire ? `<p class="text-xs text-neutral-600 mt-0.5">${escapeHtml(slot.repertoire)}</p>` : ''}
                                     ` : `
                                         <div class="flex items-center gap-2">
-                                            <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
-                                            <span class="font-semibold text-emerald-800 text-sm">Créneau disponible</span>
+                                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-black"></span>
+                                            <span class="font-semibold text-black text-sm">Disponible</span>
                                         </div>
                                     `}
-                                    ${slot.location ? `<p class="text-xs text-wood-500 mt-1 flex items-center gap-1"><i class="ph ph-map-pin"></i> ${escapeHtml(slot.location)}</p>` : ''}
+                                    ${slot.location ? `<p class="text-[11px] text-neutral-500 mt-1">${escapeHtml(slot.location)}</p>` : ''}
                                 </div>
                             </div>
 
-                            <!-- Actions -->
-                            <div class="flex items-center justify-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-wood-200/60">
+                            <div class="flex items-center justify-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-neutral-200">
                                 ${!isBooked ? `
-                                    <button onclick="openBookModal('${slot.id}')" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs sm:text-sm font-semibold shadow-sm transition active:scale-95">
-                                        Choisir ce créneau
+                                    <button onclick="openBookModal('${slot.id}')" class="w-full sm:w-auto px-4 py-2 rounded-lg bg-black hover:bg-neutral-800 text-white text-xs font-semibold transition">
+                                        Réserver
                                     </button>
                                 ` : ''}
 
                                 ${(isMyBooking || isStaff) && isBooked ? `
-                                    <button onclick="cancelBooking('${slot.id}')" class="px-3 py-2 rounded-xl border border-wood-300 hover:bg-wood-200/60 text-wood-700 text-xs font-semibold transition">
+                                    <button onclick="cancelBooking('${slot.id}')" class="px-3 py-1.5 rounded-lg border border-neutral-300 hover:border-black text-black text-xs font-medium transition">
                                         Libérer
                                     </button>
                                 ` : ''}
 
                                 ${isStaff ? `
-                                    <button onclick="deleteSlot('${slot.id}')" title="Supprimer le créneau" class="p-2 rounded-xl text-rose-600 hover:bg-rose-50 transition">
-                                        <i class="ph-bold ph-trash text-base"></i>
+                                    <button onclick="deleteSlot('${slot.id}')" title="Supprimer" class="p-1.5 rounded-lg text-neutral-500 hover:text-black hover:bg-neutral-100 transition">
+                                        <i class="ph-bold ph-trash text-sm"></i>
                                     </button>
                                 ` : ''}
                             </div>
@@ -981,11 +831,10 @@
 
                 return `
                     <div class="space-y-2.5">
-                        <h3 class="font-serif text-xl font-bold text-wood-900 capitalize flex items-center gap-2 px-1">
-                            <i class="ph-duotone ph-calendar text-wood-600"></i>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-500 px-0.5">
                             ${formattedDate}
                         </h3>
-                        <div class="space-y-2.5">
+                        <div class="space-y-2">
                             ${slotsHtml}
                         </div>
                     </div>
@@ -993,7 +842,7 @@
             }).join('');
         }
 
-        // ==================== AUDITIONS & CONCERTS ====================
+        // ==================== AUDITIONS ====================
         window.openAuditionModal = function() {
             const nextMonth = new Date();
             nextMonth.setDate(nextMonth.getDate() + 14);
@@ -1006,7 +855,6 @@
 
         window.handleCreateAudition = async function(e) {
             e.preventDefault();
-            if (!currentUser) return;
 
             const newAudition = {
                 title: document.getElementById('audition-title').value.trim(),
@@ -1021,20 +869,20 @@
 
             try {
                 await push(auditionsDbRef, newAudition);
-                showToast("Date d'audition ajoutée !");
+                showToast("Audition ajoutée.");
             } catch (err) {
                 console.error("Erreur ajout audition:", err);
-                showToast("Erreur lors de l'ajout de l'audition.", "error");
+                showToast("Erreur lors de l'ajout.", "error");
             }
         };
 
         window.deleteAudition = function(auditionId) {
             openConfirmModal(
                 "Supprimer cette audition ?",
-                "L'événement sera retiré du calendrier de la classe.",
+                "L'événement sera retiré de la liste.",
                 async () => {
                     try {
-                        const auditionRef = ref(rtdb, `artifacts/${appId}/public/data/auditions/${auditionId}`);
+                        const auditionRef = ref(rtdb, `classe_felix/auditions/${auditionId}`);
                         await remove(auditionRef);
                         showToast("Audition supprimée.");
                     } catch (err) {
@@ -1053,10 +901,9 @@
 
             if (sorted.length === 0) {
                 container.innerHTML = `
-                    <div class="col-span-full bg-white rounded-2xl p-8 text-center border border-dashed border-wood-300">
-                        <i class="ph-duotone ph-confetti text-4xl text-wood-400 mb-2"></i>
-                        <p class="text-wood-800 font-semibold">Aucune audition programmée</p>
-                        <p class="text-xs text-wood-500 mt-1">Les dates de concerts et auditions de classe seront affichées ici.</p>
+                    <div class="col-span-full rounded-xl p-8 text-center border border-dashed border-neutral-300">
+                        <p class="text-sm font-medium text-neutral-800">Aucune audition programmée</p>
+                        <p class="text-xs text-neutral-500 mt-1">Les prochaines dates d'auditions s'afficheront ici.</p>
                     </div>
                 `;
                 return;
@@ -1069,32 +916,28 @@
                 const fullDate = formatFrenchDate(item.date);
 
                 return `
-                    <div class="bg-white rounded-2xl p-5 border border-wood-200 shadow-sm flex flex-col justify-between gap-4 relative overflow-hidden">
+                    <div class="bg-white rounded-xl p-5 border border-neutral-300 flex flex-col justify-between gap-4">
                         <div class="flex items-start gap-4">
-                            <!-- Bloc Date style billet de concert -->
-                            <div class="w-14 h-16 rounded-2xl bg-wood-900 text-white flex flex-col items-center justify-center shrink-0 shadow-inner">
-                                <span class="text-xl font-bold leading-none">${dayNum}</span>
-                                <span class="text-[11px] uppercase tracking-wider text-gold-400 font-semibold mt-1">${monthShort}</span>
+                            <div class="w-12 h-14 rounded-lg bg-black text-white flex flex-col items-center justify-center shrink-0">
+                                <span class="text-lg font-bold leading-none">${dayNum}</span>
+                                <span class="text-[10px] uppercase tracking-wider text-neutral-300 font-semibold mt-1">${monthShort}</span>
                             </div>
 
                             <div class="flex-1 min-w-0">
-                                <h3 class="font-serif text-xl font-bold text-wood-950 leading-snug">${escapeHtml(item.title)}</h3>
-                                <p class="text-xs font-semibold text-wood-700 mt-1 capitalize">${fullDate} à ${item.time}</p>
-                                <p class="text-xs text-wood-600 mt-1 flex items-center gap-1">
-                                    <i class="ph-fill ph-map-pin text-rose-700"></i>
-                                    ${escapeHtml(item.location)}
-                                </p>
+                                <h3 class="text-base font-bold text-black leading-snug">${escapeHtml(item.title)}</h3>
+                                <p class="text-xs font-medium text-neutral-700 mt-1 capitalize">${fullDate} • ${item.time}</p>
+                                <p class="text-xs text-neutral-500 mt-0.5">${escapeHtml(item.location)}</p>
                             </div>
 
                             ${isStaff ? `
-                                <button onclick="deleteAudition('${item.id}')" class="p-2 rounded-xl text-rose-600 hover:bg-rose-50 transition shrink-0">
-                                    <i class="ph-bold ph-trash"></i>
+                                <button onclick="deleteAudition('${item.id}')" class="p-1.5 rounded-lg text-neutral-500 hover:text-black hover:bg-neutral-100 transition shrink-0">
+                                    <i class="ph-bold ph-trash text-sm"></i>
                                 </button>
                             ` : ''}
                         </div>
 
                         ${item.notes ? `
-                            <div class="bg-wood-50 rounded-xl p-3 text-xs text-wood-700 border border-wood-200/70">
+                            <div class="bg-neutral-50 rounded-lg p-3 text-xs text-neutral-700 border border-neutral-200">
                                 ${escapeHtml(item.notes)}
                             </div>
                         ` : ''}
@@ -1126,13 +969,13 @@
 
             msg.textContent = message;
             icon.className = type === 'error'
-                ? 'ph-fill ph-warning-circle text-rose-400 text-xl shrink-0'
-                : 'ph-fill ph-check-circle text-emerald-400 text-xl shrink-0';
+                ? 'ph-bold ph-warning text-white text-base shrink-0'
+                : 'ph-bold ph-check text-white text-base shrink-0';
 
             toast.classList.remove('translate-y-[-150%]', 'opacity-0');
             setTimeout(() => {
                 toast.classList.add('translate-y-[-150%]', 'opacity-0');
-            }, 3200);
+            }, 3000);
         }
 
         function formatFrenchDate(isoDateStr) {
@@ -1166,19 +1009,18 @@
                 .replace(/'/g, "&#039;");
         }
 
-        // Configuration dynamique du Manifest PWA
         function setupPwaManifest() {
             const manifest = {
                 name: "Classe de Violon - Félix Froschhammer",
                 short_name: "Classe Félix",
-                description: "Agenda des cours de violon, répétitions piano avec Stéphanie Gurga et auditions.",
+                description: "Agenda des cours de violon, accompagnement piano et auditions.",
                 start_url: ".",
                 display: "standalone",
-                background_color: "#fbf8f6",
-                theme_color: "#1a120b",
+                background_color: "#ffffff",
+                theme_color: "#000000",
                 icons: [
                     {
-                        src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%232c1e14'/%3E%3Ctext x='50%25' y='54%25' font-size='260' text-anchor='middle' dominant-baseline='middle'%3E🎻%3C/text%3E%3C/svg%3E",
+                        src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23000000'/%3E%3Ctext x='50%25' y='54%25' font-size='220' font-family='sans-serif' font-weight='bold' fill='%23ffffff' text-anchor='middle' dominant-baseline='middle'%3EFF%3C/text%3E%3C/svg%3E",
                         sizes: "512x512",
                         type: "image/svg+xml"
                     }
@@ -1188,11 +1030,6 @@
             document.getElementById('pwa-manifest').setAttribute('href', URL.createObjectURL(blob));
         }
 
-        window.dismissPwaBanner = function() {
-            document.getElementById('pwa-banner').classList.add('hidden');
-        };
-
-        // Lancement de l'application
         initApp();
     </script>
 </body>
